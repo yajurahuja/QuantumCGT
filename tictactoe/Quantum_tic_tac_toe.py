@@ -14,7 +14,7 @@ while True:
 boxSize = min(100,int(750/size))
 circuit=QuantumCircuit(size*size,size*size)
 
-def setup(): #Inititial Window
+def setup(): #Initial Window
 	for i in range(size*size):
 		circuit.h(i)
 	start_window = GraphWin("Welcome",600,600)
