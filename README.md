@@ -1,2 +1,2 @@
 # QuantumCGT
-Repository for Implementing and Analysing Quantum Combinatorial Games
+Repository for implementing and analysing Quantum Combinatorial Games
