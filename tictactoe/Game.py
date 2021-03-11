@@ -7,12 +7,12 @@ class game:
 		self.boardsize = size
 		self.win_parameter = winp
 		self.turn = 1
-		self.game_circuit = QuantumCircuit(boardsize ** 2, boardsize ** 2) # nXn size quantum circuit
+		self.game_circuit = QuantumCircuit(self.boardsize ** 2, self.boardsize ** 2) # nXn size quantum circuit
 		self.simulator = Aer.get_backend('qasm_simulator')
 		self.boxsize = boxsize
 		self.board = [[ 0 for i in range(size)] for j in range(size)] # board matrix
 		self.turn = 1
-		self.boxes = [[Rect(i*boxsize, j*boxsize, boxsize) for i in range(boardsize)]for j in range(boardsize)]
+		self.boxes = [[self.Rect(i*self.boxsize, j*self.boxsize) for i in range(self.boardsize)]for j in range(self.boardsize)]
 		self.moves = 0
 		self.turn = 1			
 		self.choice = ''
@@ -20,9 +20,10 @@ class game:
 		self.control_position = {}
 		self.target_position = {}
 		self.update = []
+		self.boxinfo = self.boxinfo_g()
 
-	def Rect(x,y, bs): # Create a rectanble box using diagonal points
-		return Rectangle(Point(x,y+bs),Point(x+bs,y))
+	def Rect(self, x, y): # Create a rectanble box using diagonal points
+		return Rectangle(Point(x, y + self.boxsize),Point(x + self.boxsize, y))
 
 	def start_window_g(self):
 		start_window = GraphWin("Welcome",600,600)
@@ -59,23 +60,54 @@ class game:
 				start_window.close()
 				break
 
-	def boxes_g(window)
+
+	def boxes_g(self, window):
 		for row in self.boxes:
 			for box in row:
 				box.draw(window) 
 				box.setFill("Grey")
 
-
-
-	def main_window_g()
-		main_win = GraphWin("Quantum Tic Tac Toe ",size * boxsize,size * boxsize+50)
-		main_win.setCoords(0,size * boxsize+50,size * boxsize,0)
-		boxes_g(main_win)
+	def main_window_g(self):
+		main_win = GraphWin("Quantum Tic Tac Toe ",self.boardsize * self.boxsize, self.boardsize * self.boxsize+50)
+		main_win.setCoords(0, self.boardsize * self.boxsize+50, self.boardsize * self.boxsize,0)
+		self.boxes_g(main_win)
+		self.control_target_g(main_win)
 
 	def setup(self): # Setup the game circuit and initial display screen
-		for i in range(boardsize ** 2):
-			game_circuit.h(i)
-		start_window_g() #Draw the window
+		for i in range(self.boardsize ** 2):
+			self.game_circuit.h(i)
+		self.start_window_g() #Draw the window
+
+	def control_target_g(self, window): 
+		for index in range(self.boardsize ** 2):
+			row = index//self.boardsize
+			column = index%self.boardsize
+			print(row, column)
+			if index+1 in self.control_position.keys():
+				self.boxinfo[row][column].undraw()
+				self.boxinfo[row][column].setText(str(control_pos[i+1]))
+				self.boxinfo[row][column].draw(window)
+			elif index+1 in self.target_position.keys():
+				self.boxinfo[row][column].undraw()
+				self.boxinfo[row][column].setText(str(target_pos[i+1]))
+				self.boxinfo[row][column].draw(window)
+			else:
+				self.boxinfo[row][column].undraw()
+				self.boxinfo[row][column].setText(str(list()))
+				self.boxinfo[row][column].draw(window)
+
+	def boxinfo_g(self):
+		B = []
+		for row in range(self.boardsize):
+			T = []
+			for column in range(self.boardsize):
+				txt = Text(Point(column*self.boxsize+50,row*self.boxsize+10),'')
+				txt.setTextColor("Green")
+				T.append(txt)
+			B.append(T)
+		print(len(B))
+		return B
+"""
 
 	def boolp(x,y,n):
 	if x >= size or y>=size or x<0 or y<0: 
@@ -191,7 +223,7 @@ class game:
 	# -player class will have different move functions 
 	# we will call the move functions from inside the move function of the game class
 	
-
+"""
 
 
 	
