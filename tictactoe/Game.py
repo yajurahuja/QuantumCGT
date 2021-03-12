@@ -13,14 +13,17 @@ class game:
 		self.board = [[ 0 for i in range(size)] for j in range(size)] # board matrix
 		self.turn = 1
 		self.boxes = [[self.Rect(i*self.boxsize, j*self.boxsize) for i in range(self.boardsize)]for j in range(self.boardsize)]
-		self.moves = 0
-		self.turn = 1			
+		self.moves = 1		
 		self.choice = ''
 		self.points = []
 		self.control_position = {}
 		self.target_position = {}
 		self.update = []
 		self.boxinfo = self.boxinfo_g()
+		self.current_win = None 
+		self.turn_txt = None
+		self.message = None
+		self.colour = ''
 
 	def Rect(self, x, y): # Create a rectanble box using diagonal points
 		return Rectangle(Point(x, y + self.boxsize),Point(x + self.boxsize, y))
@@ -70,8 +73,9 @@ class game:
 	def main_window_g(self):
 		main_win = GraphWin("Quantum Tic Tac Toe ",self.boardsize * self.boxsize, self.boardsize * self.boxsize+50)
 		main_win.setCoords(0, self.boardsize * self.boxsize+50, self.boardsize * self.boxsize,0)
+		self.current_win = main_win
 		self.boxes_g(main_win)
-		self.control_target_g(main_win)
+
 
 	def setup(self): # Setup the game circuit and initial display screen
 		for i in range(self.boardsize ** 2):
@@ -107,6 +111,94 @@ class game:
 			B.append(T)
 		print(len(B))
 		return B
+
+
+	def play(self):
+
+		self.control_target_g(self.current_win)
+		self.turn_txt = Text(Point(self.boxsize*(self.boardsize/2), self.boxsize*self.boardsize+15),'')
+		self.turn_txt.setSize(15)
+		self.message = Text(Point(self.boxsize*(self.boardsize/2), self.boxsize*self.boardsize+35), '')
+		self.message.setSize(15)
+		self.message.draw(self.current_win)
+		self.turn_txt.draw(self.current_win)
+
+		while True:
+			if self.turn == 1:
+				self.colour = "White"
+			else:
+				self.colour = "Black"
+			x, y = self.play_g()
+			if(x == None or y == None):
+				continue
+			else:
+				ch = self.choice_g()
+				print(self.turn, self.moves, ch)
+				self.turn = 3- self.turn
+				self.moves = self.moves + 1
+
+
+
+	def play_g(self):
+		self.turn_txt.undraw()
+		self.turn_txt.setText('Turn : Player '+str(self.turn)+'('+self.colour+')')
+		self.turn_txt.draw(self.current_win)
+		curr = self.current_win.getMouse()
+		y = int(curr.getX() / self.boxsize) 
+		x = int(curr.getY() / self.boxsize) 
+		if not (0<=x<self.boardsize and 0<=y<self.boardsize):
+			return None, None
+		else:
+			return x, y
+
+
+
+	def choice_g(self):
+		bsize = 100
+		s = 2
+		rec = [[self.Rect(i*bsize,50)] for i in range(s)]
+		hchoice = self.Rect(50,150)
+		win_choice = GraphWin("Choose Move",(s) * bsize,(s) * bsize+100)
+		win_choice.setCoords(0,(s) * bsize+100,(s) * bsize,0)
+		for x in rec: 
+			for y in x:
+				y.draw(win_choice)
+		hchoice.draw(win_choice)
+
+		txt = Text(Point(50,100),"Q move")
+		txt.draw(win_choice)
+		txt = Text(Point(150,100),"C move")
+		txt.draw(win_choice)
+		txt = Text(Point(100,200),"H move")
+		txt.draw(win_choice)
+
+		f=1
+		while f == 1:
+			p = win_choice.getMouse()
+			y = int(p.getX() /self.boxsize)
+			x = p.getY()-50
+			xx = int(x /self.boxsize)
+			
+			if y==0 and xx==0 and x>=0:
+				win_choice.close()
+				return 'q'
+			        
+			elif y==1 and xx==0 and x>=0:
+				win_choice.close()
+				return 'c'
+
+			elif 50<= p.getX() <=150 and 150<= p.getY() <=250:
+				win_choice.close()
+				return 'h'
+
+
+
+	def choice(self):
+		return self.choice_g() #replace by strategy function
+
+#	def move(self):
+
+
 """
 
 	def boolp(x,y,n):

@@ -11,5 +11,6 @@ if __name__ == "__main__":
 	a = game(size, winp, turn, boxSize)
 	a.setup()
 	a.main_window_g()
+	a.play()
 
 
