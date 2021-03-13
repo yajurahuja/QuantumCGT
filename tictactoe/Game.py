@@ -193,6 +193,49 @@ class game:
 
 
 
+	def cmove(self, row, column):
+		index = row * self.boardsize + (column + 1)
+		self.game_circuit.measure(index-1, self.boardsize**2 - index) 
+		result = execute(self.game_circuit, get_backend, shots = 1).result()
+		circuit_array = list(result.get_counts(circuit).keys())[0]
+		error = 0
+		if index not in self.points:
+			if circuit_array[index-1] == '1':
+				self.game_circuit.reset(index-1)
+				self.game_circuit.x(index-1)
+				circuit.measure(pos-1, self.boardsize**2 - index)
+			else:
+				self.game_circuit.reset(index-1)
+				self.game_circuit.measure(index-1, self.boardsize**2 - index)
+
+			#check the elements which are control/target points
+
+		else:
+			global message
+			message.setText('Illegal move')
+			message.draw(self.current_win)
+			error=1
+		points.append(index) #update the points to show the index has been measured
+		self.colour_g()
+		return error
+
+	def hmove(self, row, column):
+		index  = (row * self.boardsize) + (column + 1)
+		if index in points and index not in self.target_position.keys():
+			self.game_circuit.reset(index - 1)
+			self.game_circuit.h(index - 1)
+			self.boxes[row][column].setFill('Gray')
+			self.points.remove(index)
+			self.board[row][column] = 0
+			return 0
+		else: 
+			global message
+			message.setText('Illegal move')
+			message.draw(win)
+			return 1
+
+	#def colour_g(self):
+	
 	def choice(self):
 		return self.choice_g() #replace by strategy function
 
