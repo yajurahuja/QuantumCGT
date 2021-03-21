@@ -5,78 +5,62 @@ from sys import*
 
 class player:
 	
-	def __init__(self, number):
+	def __init__(self, number, game):
 		self.player_number = number
+		self.game = game
+
+	def move(self, choice):
+		print("choice" + str(choice))
+
 
 class cplayer(player):
 
-	#def __init__(self):
-	def cmove(row, column, size, sim):
-		index = (row * size) + (column + 1)
-		circuit.measure(index - 1, bize**2 - index)
-		result = execute(circuit, backend=sim, shots=1).result()
-		circuit_array = list(result.get_counts(circuit).keys())[0]
-		error=0
-		if pos not in points:
-			if circuit_array[pos-1]=='1':
-				circuit.reset(pos-1)
-				circuit.x(pos-1)
-				circuit.measure(pos-1,size*size-pos)
+	def get_position(self):
+		while True:
+			x = int(input("Row: ")) - 1
+			y = int(input("Column: ")) - 1
+			if x >= 0 and x < self.game.boardsize and y >= 0 and y < self.game.boardsize:
+				break
 			else:
-				circuit.reset(pos-1)
-				circuit.measure(pos-1,size*size-pos)
+				print("Out of index")
+		return x, y
 
-			if pos in control_pos.keys():
-				for target in control_pos[pos]:
-					circuit.cx(pos-1,target-1)
-				for target in control_pos[pos]:
-					circuit.measure(target-1,size*size-target)
+	def cmove(self):
+		row, column = self.get_position()
+		index = row * self.game.boardsize + (column + 1)
+		self.game.game_circuit.measure(index - 1, self.game.boardsize**2 - index)
+		result=execute(self.game.game_circuit,backend=self.game.simulator,shots=1).result()
+		circuit_array =list(result.get_counts(self.game.game_circuit).keys())[0]
+		error_ = 0
+		if index not in self.game.points:
+			if circuit_array[index-1]=='1':
+				self.game.game_circuit.reset(index-1)
+				self.game.game_circuit.x(index-1)
+				self.game.game_circuit.measure(index - 1, self.game.boardsize**2 - index)
+			else:
+				self.game.game_circuit.reset(index-1)
+				self.game.game_circuit.measure(index - 1, self.game.boardsize**2 - index)
 		else:
 			global message
-			message.setText('Illegal move')
-			message.draw(win)
-			error=1
-		points.append(pos)
-		modify(pos)
-		return error
+			print('Illegal move, Try again')
+			error_ = 1
+
+		self.game.points.append(index)
+		self.game.update(index)
+		return error_
 
 
 
+
+	def move(self, choice):
+		print("choice " + str(choice))
+		self.cmove()
+
+	
 
 class qplayer(cplayer):
 
-	def qmove(control_bit,target_bit, points):
-		if target_bit in points and control_bit not in points:
-			
-			if target_bit in target_pos.keys():
-				target_pos[target_bit].append(control_bit)
-			else:
-				target_pos[target_bit] = [control_bit]
-
-			if control_bit in control_pos.keys():
-				control_pos[control_bit].append(target_bit)
-			else:
-				control_pos[control_bit] = [target_bit]
-			print(control_bit,'-',target_bit,' ',"entangled")
-			return 0
-		else :
-			global message
-			message.setText('Illegal move')
-			message.draw(win)
-			return 1
-
-	def hmove(row, column, size, target_positon):
-		index = (row * size) + (column + 1)
-		if index in points and index not in target_position.keys():
-			circuit.reset(index-1)
-			circuit.h(index-1)
-			rec[x][y].setFill('Gray')
-			points.remove(pos)
-			l[x][y] = 0
-			return 0
-
-		else:
-			global message
-			message.setText('Illegal move')
-			message.draw(win)
-			return 1
+	def qmove(self):
+		print("qmove")
+	def hmove(self):
+		print("reset")
