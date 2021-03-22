@@ -40,6 +40,13 @@ class cplayer(player):
 			else:
 				self.game.game_circuit.reset(index-1)
 				self.game.game_circuit.measure(index - 1, self.game.boardsize**2 - index)
+
+			if index in self.game.control_positions.keys():
+				for target in self.game.control_positions[index]:
+					self.game.game_circuit.cx(index-1,target-1)
+				for target in self.game.control_positions[index]:
+					self.game.game_circuit.measure(target - 1, self.game.boardsize**2 - target)
+
 		else:
 			global message
 			print('Illegal move, Try again')
@@ -62,14 +69,35 @@ class cplayer(player):
 			print("wrong choice")
 
 
-
-	
-
 class qplayer(cplayer):
 
 	def qmove(self):
-		print("qmove")
-		return 0
+		print("Enter for Target Bit")
+		row, column = self.get_position()
+		targetbit = (row * self.game.boardsize) + (column + 1)
+
+		print("Enter for Control Bit")
+		row, column = self.get_position()
+		controlbit = (row * self.game.boardsize) + (column + 1)
+
+
+		if targetbit in self.game.points and controlbit not in self.game.points:
+			
+			if targetbit in self.game.target_positions.keys():
+				self.game.target_positions[targetbit].append(controlbit)
+			else:
+				self.game.target_positions[targetbit] = [controlbit]
+
+			if controlbit in self.game.control_positions.keys():
+				self.game.control_positions[controlbit].append(targetbit)
+			else:
+				self.game.control_positions[controlbit] = [targetbit]
+			print(controlbit,'-',targetbit,' ',"entangled")
+			return 0
+		else :
+			global message
+			print('Illegal move')
+			return 1
 
 	def hmove(self):
 		row, column = self.get_position()

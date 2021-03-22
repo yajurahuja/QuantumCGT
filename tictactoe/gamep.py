@@ -67,9 +67,14 @@ class game:
 			elif(circuit_array[i - 1] == '1' and self.board[row][column] != 2):
 				self.board[row][column] = 2
 		if index in self.control_positions.keys():
-			for target in self.target_positions in self.control_positions[index]:
+			for target in self.control_positions[index]:
 				self.target_positions[target].remove(index)
+				if self.target_positions[target] == []:
+					del self.target_positions[target]
 			del self.control_positions[index]
+
+		print(self.control_positions)
+		print(self.target_positions)
 
 	def boolp(self, x, y, n):
 		if x >= self.boardsize or y >= self.boardsize or x<0 or y<0: 
