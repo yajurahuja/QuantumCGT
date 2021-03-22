@@ -54,7 +54,14 @@ class cplayer(player):
 
 	def move(self, choice):
 		print("choice " + str(choice))
-		self.cmove()
+		if choice == 1:
+			self.cmove()
+		elif choice == 2 or choice == 3:
+			print("Cannot make a quantum move")
+		else:
+			print("wrong choice")
+
+
 
 	
 
@@ -62,5 +69,32 @@ class qplayer(cplayer):
 
 	def qmove(self):
 		print("qmove")
+		return 0
+
 	def hmove(self):
-		print("reset")
+		row, column = self.get_position()
+		index = row * self.game.boardsize + (column + 1)
+		if index in self.game.points and index not in self.game.target_positions.keys():
+			self.game.game_circuit.reset(index - 1)
+			self.game.game_circuit.h(index - 1)
+			self.game.points.remove(index)
+			self.game.board[row][column] = 0
+			return 0
+		else:
+			global message
+			print('Illegal move, Try again')
+			return 1
+
+	def move(self, choice):
+		print("choice " + str(choice))
+		if choice == 1:
+			self.cmove()
+		elif choice == 2:
+			self.qmove()
+		elif choice == 3:
+			self.hmove()
+		else:
+			print("wrong choice")
+
+
+

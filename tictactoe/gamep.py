@@ -47,7 +47,7 @@ class game:
 
 	def playerchoice(self):
 		print(" Turn: Player " + str(self.turn))
-		return input(self.choice_info)
+		return int(input(self.choice_info))
 
 	def move(self, choice):
 		self.players[self.turn - 1].move(choice)
