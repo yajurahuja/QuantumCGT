@@ -37,9 +37,8 @@ class Gate:
 			tensor_product = np.kron(tensor_product, gate.mat)
 		return tensor_product
 
-
-b = Gate([[1, 1, 0], [1, 0, 0], [0, 0, 1]])
-c = Qutrit()
-
-ab = Qutrit.apply([b], [c])
-print(ab)
+class Board:
+	def __init(self, size):
+		self.size = size
+		self.qutrits = Qutrit.tensor([Qutrit() for i in range(size)])
+		
