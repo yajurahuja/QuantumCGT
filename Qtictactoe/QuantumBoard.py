@@ -1,15 +1,9 @@
 import cirq
 import numpy as np
+from gates import *
 
 import time
 start_time = time.time()
-
-
-
-
-X_1 = np.array([[0, 1, 0], [1, 0, 0], [0, 0, 1]])
-X_2 = np.array([[0, 0, 1], [0, 1, 0], [1, 0, 0]])
-
 
 class Board():
 	def __init__(self, size):
@@ -18,22 +12,56 @@ class Board():
 		self.simulator = cirq.Simulator()
 		self.move = 0
 
+	def init(self):
+		OpI = OperatorI(I)
+		for i in range(len(self.qutrits)):
+			self.circuit.append(OpI.on(self.qutrits[i]))
+		self.get_current_state()
+
 	def measure(self):
 		for i in range(len(self.qutrits)):
 			self.circuit.append(cirq.measure(self.qutrits[i]))
 		print(self.circuit)
-		print(self.simulator.run(self.circuit))
+		result = self.simulator.run(self.circuit)
+		collapsed = []
+		for i in range(9):
+			collapsed.append(result.measurements[str(i) + ' (d=3)'][0][0])
+		return np.array(collapsed).reshape(3,3)
+
+	def get_current_state(self):
+		result = self.simulator.simulate(self.circuit)
+		print(result)
+		print('\n\n\n')
+		#collapsed = []
+		#for i in range(9):
+		#	collapsed.append(result.measurements[str(i) + ' (d=3)'][0][0])
+		#return np.array(collapsed).reshape(3,3)
 
 	def apply_unitary_9(self, player, unitary):
-		test = Operator9(player, unitary)
-		self.circuit.append(test.on(*self.qutrits))
+		app = Operator9(player, unitary)
+		self.circuit.append(app.on(*self.qutrits))
 
 	def apply_unitary_1(self, player, unitary, qindex):
-		test = Operator1(player, unitary)
-		self.circuit.append(test.on(self.qutrits[qindex]))
+		app = Operator1(player, unitary)
+		self.circuit.append(app.on(self.qutrits[qindex]))
+		#self.get_current_state()
+
+	def apply_unitary_controlled(self, player, unitary, qindex, cindex):
+		app = Operator1(player, unitary)
+		self.circuit.append(app.on(self.qutrits[qindex]).controlled_by(self.qutrits[cindex]))
+		#self.get_current_state()
+
+	def apply_unitary_2(self, player, unitary, qi1, qi2 ):
+		app = Operator1(player, unitary)
+		self.circuit.append(app.on([self.qutrits[qi1], self.qutrits[qi2]]))
 
 	def set_move(self, move):
 		self.move = move
+
+	def get_statevector(self, q_order):
+		result = self.simulator.simulate(self.circuit)
+		return np.around(result.final_state_vector, 3)
+
 
 
 
@@ -74,14 +102,51 @@ class Operator1(cirq.Gate):
 		return ["U_" + str(self.player)] * self.num_qubits()
 
 
+class Operator2(cirq.Gate):
+	def __init__(self, player, unitary):
+		super(Operator1, self)
+		self.player = player
+		self.unitary = unitary
+
+	def _qid_shape_(self):
+		return (3, 3)
+
+	def _num_qubits_(self):
+		return 2
+
+	def _unitary_(self):
+		return np.array(self.unitary)
+
+	def _circuit_diagram_info_(self, args):
+		return ["U_" + str(self.player)] * self.num_qubits()
+
+
+class OperatorI(cirq.Gate):
+	def __init__(self, unitary):
+		super(OperatorI, self)
+		self.unitary = unitary
+
+	def _qid_shape_(self):
+		return (3, )
+
+	def _num_qubits_(self):
+		return 1
+
+	def _unitary_(self):
+		return np.array(self.unitary)
+
+	def _circuit_diagram_info_(self, args):
+		return "I"
+
+
+"""
 a = Board(9)
-a.apply_unitary_1(1, X_1, 0)
-print("--- %s seconds ---" % (time.time() - start_time))
-
-a.apply_unitary_9(2, np.kron(np.eye(3**8), X_2))
+a.init()
+a.apply_unitary_1(1, H['01'], 0)
+a.apply_unitary_1(1, X['01'], 1)
+a.apply_unitary_controlled(1, X['01'], 1, 0)
 a.measure()
-
-print("--- %s seconds ---" % (time.time() - start_time))
+"""
 
 
 
