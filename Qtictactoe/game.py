@@ -17,6 +17,7 @@ class game:
 		self.board = Board(self.board_size**2)
 		self.board.init()
 
+
 	def addplayer(self):
 		self.players.append(player(len(self.players) + 1))
 
@@ -29,7 +30,8 @@ class game:
 		self.moves += 1
 		self.players[self.turn - 1].move(self.board, self.moves)
 		self.turn = 3 - self.turn
-		print(self.board.get_current_state())
+		print(self.board.get_statevector())
+		print('\n\n\n')
 				
 
 	def get_winner(self):

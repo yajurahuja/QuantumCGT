@@ -10,23 +10,27 @@ class player:
 		print("Turn: Player " + str(self.player_number), "Move: " + str(move))
 		inp = input("Enter 2 box numbers (1-9) with spaces: ")
 		inp = inp.split(' ')
-		self.EQ(board, int(inp[0])- 1 , int(inp[1]) - 1)
+		prob = input("input probability of first box: ")
+		rad = 2 * np.arccos(np.sqrt(float(prob)))
+		self.U(board, int(inp[0])- 1 , int(inp[1]) - 1, rad) 
+		#self.EQ(board, int(inp[0])- 1 , int(inp[1]) - 1) 
 		board.set_move(move)
 
 	def strategy(self, board):
 
 		return U
 
-	def move_input(self):
-		print("Please input box number: ")
-		inp = int(input())
-		return inp
-
 	def EQ(self, board, q1, q2):
 		gindex = '0' + str(self.player_number)
 		board.apply_unitary_1(self.player_number, H[gindex], q1)
 		board.apply_unitary_1(self.player_number, X[gindex], q2)
 		board.apply_unitary_controlled(self.player_number, X[gindex], q1, q2)
+
+	def U(self, board, q1, q2, rad):
+		gindex = '0' + str(self.player_number)
+		board.apply_unitary_1(self.player_number, X[gindex], q1)
+		board.apply_unitary_1(self.player_number, R_y(rad, gindex), q2)
+		board.apply_unitary_controlled(self.player_number, X[gindex], q2, q1)
 
 
 	# def move(self):

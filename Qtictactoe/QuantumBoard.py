@@ -32,10 +32,7 @@ class Board():
 		result = self.simulator.simulate(self.circuit)
 		print(result)
 		print('\n\n\n')
-		#collapsed = []
-		#for i in range(9):
-		#	collapsed.append(result.measurements[str(i) + ' (d=3)'][0][0])
-		#return np.array(collapsed).reshape(3,3)
+
 
 	def apply_unitary_9(self, player, unitary):
 		app = Operator9(player, unitary)
@@ -58,9 +55,9 @@ class Board():
 	def set_move(self, move):
 		self.move = move
 
-	def get_statevector(self, q_order):
+	def get_statevector(self):
 		result = self.simulator.simulate(self.circuit)
-		return np.around(result.final_state_vector, 3)
+		return result.dirac_notation(3)
 
 
 
@@ -137,8 +134,6 @@ class OperatorI(cirq.Gate):
 
 	def _circuit_diagram_info_(self, args):
 		return "I"
-
-
 
 # a = Board(9)
 # a.init()
