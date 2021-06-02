@@ -23,9 +23,10 @@ class player:
 		return inp
 
 	def EQ(self, board, q1, q2):
-		board.apply_unitary_1(self.player_number, H['01'], q1)
-		board.apply_unitary_1(self.player_number, X['01'], q2)
-		board.apply_unitary_controlled(self.player_number, X['01'], q2, q1)
+		gindex = '0' + str(self.player_number)
+		board.apply_unitary_1(self.player_number, H[gindex], q1)
+		board.apply_unitary_1(self.player_number, X[gindex], q2)
+		board.apply_unitary_controlled(self.player_number, X[gindex], q1, q2)
 
 
 	# def move(self):

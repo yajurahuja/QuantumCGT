@@ -46,9 +46,9 @@ class Board():
 		self.circuit.append(app.on(self.qutrits[qindex]))
 		#self.get_current_state()
 
-	def apply_unitary_controlled(self, player, unitary, qindex, cindex):
-		app = Operator1(player, unitary)
-		self.circuit.append(app.on(self.qutrits[qindex]).controlled_by(self.qutrits[cindex]))
+	def apply_unitary_controlled(self, player, unitary, cindex, qindex):
+		app = Operator1(player, unitary).controlled(control_values = [player],control_qid_shape = (3,))
+		self.circuit.append(app.on(self.qutrits[cindex], self.qutrits[qindex]))
 		#self.get_current_state()
 
 	def apply_unitary_2(self, player, unitary, qi1, qi2 ):
@@ -139,14 +139,14 @@ class OperatorI(cirq.Gate):
 		return "I"
 
 
-"""
-a = Board(9)
-a.init()
-a.apply_unitary_1(1, H['01'], 0)
-a.apply_unitary_1(1, X['01'], 1)
-a.apply_unitary_controlled(1, X['01'], 1, 0)
-a.measure()
-"""
+
+# a = Board(9)
+# a.init()
+# a.apply_unitary_1(1, H['02'], 0)
+# a.apply_unitary_1(1, X['01'],0)
+# a.apply_unitary_controlled(1, X['01'], 0, 1)
+# a.measure()
+
 
 
 
