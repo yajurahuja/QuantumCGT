@@ -1,5 +1,7 @@
 from QuantumBoard import *
 
+amplitudes = np.array([0, 1, -1 , 1j, -1j, 1/np.sqrt(2), -1/np.sqrt(2), 1j/np.sqrt(2), -1j/np.sqrt(2)], dtype = complex)
+
 
 class player:
 
@@ -32,8 +34,35 @@ class player:
 		board.apply_unitary_1(self.player_number, R_y(rad, gindex), q2)
 		board.apply_unitary_controlled(self.player_number, X[gindex], q2, q1)
 
+	def move_9(self, gameboard, move):
+		print("Turn: Player " + str(self.player_number), "Move: " + str(move))
+		print(amplitudes)
+		boards = []
+		boxes = []
+		amps = []
+		boardstr = gameboard.get_boards()
+		for board in boardstr:
+			print("Enter input for board: " + board)
+			inp = input("Enter first box numbers (1-9) and the amplitude index from the list: ")
+			inp = inp.split(' ')
+			boards.append(board)
+			boxes.append(int(inp[0])-1)
+			amps.append(amplitudes[int(inp[1])-1])
+			inp = input("Enter second box numbers (1-9) and the amplitude index from the list or e for not entering more prob: ")
+			if inp == 'e':
+				continue
+			else:
+				inp = inp.split(' ')
+				boards.append(board)
+				boxes.append(int(inp[0])-1)
+				amps.append(amplitudes[int(inp[1])-1])
+		gameboard.create_unitary(self.player_number, boards, boxes, amps)
+		gameboard.set_move(move)
 
-	# def move(self):
+
+
+
+	#def move(self):
 	# 	print("Please input as box number(1-9) probability(0-1) and press enter. type d and press enter to end turn.")
 	# 	box_number = []
 	# 	prob = []

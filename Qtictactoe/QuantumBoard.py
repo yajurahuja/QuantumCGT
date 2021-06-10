@@ -59,7 +59,19 @@ class Board():
 		result = self.simulator.simulate(self.circuit)
 		return result.dirac_notation(3)
 
+	def get_boards(self):
+		result = self.get_statevector()
+		boards = result.split(' + ')
+		for i in range(len(boards)):
+			board = boards[i]
+			boards[i] = board[board.find('|')+1:-1]
+		return boards
 
+	def create_unitary(self, player, boardlist, boxlist, amplist):
+		#do something
+		print(boardlist)
+		print(boxlist)
+		print(amplist)
 
 
 class Operator9(cirq.Gate):

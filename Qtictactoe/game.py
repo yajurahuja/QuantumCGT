@@ -28,7 +28,7 @@ class game:
 
 	def move(self):
 		self.moves += 1
-		self.players[self.turn - 1].move(self.board, self.moves)
+		self.players[self.turn - 1].move_9(self.board, self.moves)
 		self.turn = 3 - self.turn
 		print(self.board.get_statevector())
 		print('\n\n\n')
