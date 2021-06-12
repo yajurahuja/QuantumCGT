@@ -67,11 +67,28 @@ class Board():
 			boards[i] = board[board.find('|')+1:-1]
 		return boards
 
-	def create_unitary(self, player, boardlist, boxlist, amplist):
-		#do something
+	def create_unitary(self, player, boardlist, indexlist, amplist):
 		print(boardlist)
-		print(boxlist)
+		print(indexlist)
 		print(amplist)
+		unitary = np.zeros(3**9)
+		for i in range(len(boardlist)):
+			board = boardlist[i]
+			nboard = board[:indexlist[i]] + str(player) + board[(indexlist[i] + 1):]
+			print(board,nboard)
+			unitary = unitary + (amplist[i] * np.outer(self.tensor_product(nboard), self.tensor_product(board)))
+		return unitary
+		
+
+	def tensor_product(self, boardstr):
+		tensor_product = np.array([1.0])
+		for state in boardstr:
+			tensor_product = np.kron(tensor_product, qutrit[state])
+		return tensor_product
+	
+
+
+
 
 
 class Operator9(cirq.Gate):

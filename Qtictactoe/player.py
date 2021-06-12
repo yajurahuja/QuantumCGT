@@ -36,7 +36,7 @@ class player:
 
 	def move_9(self, gameboard, move):
 		print("Turn: Player " + str(self.player_number), "Move: " + str(move))
-		print(amplitudes)
+		print("0, 1, -1 , i, -i, 1/np.sqrt(2), -1/sqrt(2), i/sqrt(2), -i/sqrt(2)")
 		boards = []
 		boxes = []
 		amps = []
@@ -56,7 +56,7 @@ class player:
 				boards.append(board)
 				boxes.append(int(inp[0])-1)
 				amps.append(amplitudes[int(inp[1])-1])
-		gameboard.create_unitary(self.player_number, boards, boxes, amps)
+		gameboard.apply_unitary_9(self.player_number, gameboard.create_unitary(self.player_number, boards, boxes, amps))
 		gameboard.set_move(move)
 
 

@@ -17,3 +17,7 @@ def R_y(rad, values):
 	 	  '12': np.round(np.array([[1, 0, 0], [0, np.cos(rad), -np.sin(rad)], [0, np.sin(rad), np.cos(rad)]]), decimals = 5)}
 
 	return Ry[values]
+
+qutrit = {'0': np.array([1, 0, 0]), 
+		  '1': np.array([0, 1, 0]),
+		  '2': np.array([0, 0, 1])}
