@@ -1,4 +1,4 @@
-from player import*
+=from player import*
 from QuantumBoard import*
 
 

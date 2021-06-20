@@ -1,7 +1,7 @@
 import cirq
 import numpy as np
 from gates import *
-
+import re
 import time
 start_time = time.time()
 
@@ -61,7 +61,7 @@ class Board():
 
 	def get_boards(self):
 		result = self.get_statevector()
-		boards = result.split(' + ')
+		boards = re.split(' \+ | - ', result)
 		for i in range(len(boards)):
 			board = boards[i]
 			boards[i] = board[board.find('|')+1:-1]
