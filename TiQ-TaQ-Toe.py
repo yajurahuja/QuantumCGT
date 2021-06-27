@@ -1,6 +1,9 @@
 import numpy as np
 from itertools import product
 import random
+from collections import Counter
+import functools
+import operator
 
 def initial_board():
   '''This is the initial board with amplitude 1 and 0s in all the places'''
@@ -71,6 +74,28 @@ def move(board,player_number):
             new_board.extend(current_board)
         else:
             new_board = board 
+    
+    #Combining same boards
+    flat = functools.reduce(operator.iconcat, new_board, [])
+    duplicate_items = ([item for item, count in Counter(flat).items() if (count > 1 and type(item)==str)])
+    concatenated_list = []
+    all_indexes = []
+    for i in duplicate_items:
+        indexes = []
+        for j in new_board:
+            if (i==j[1]):
+                indexes.append(new_board.index(j))
+                all_indexes.append(new_board.index(j))
+        total_amp = 0
+        for k in indexes:
+            total_amp += new_board[k][0]
+        combined_ele = [total_amp,i]
+        concatenated_list.append(combined_ele)
+    for ele in sorted(all_indexes, reverse = True): 
+            del new_board[ele]
+    new_board.extend(concatenated_list)
+    
+    #Removing boards with amplitude 0
     unwanted = []
     for i in new_board:
         if(i[0]==False):
@@ -93,11 +118,11 @@ def status(one_board,player_number):
     combined = diags + rows + cols
     
     if(len(zeros)==0):
-        if(any(i.count(player_number)==3 for i in combined) and all(i.count(opponent_number)!=3 for i in combined)):
+        if(any(i.count(player_number)==3 for i in combined) and all(i.count(opponent_number)!=3 for i in combined)): #win condition
             return 1
-        elif (any(i.count(opponent_number)==3 for i in combined) and all(i.count(player_number)!=3 for i in combined)):
+        elif (any(i.count(opponent_number)==3 for i in combined) and all(i.count(player_number)!=3 for i in combined)): #lose condition
             return -1
-        else:
+        else:                                                                                                           #draw
             return 0
 
 def reward(board, player_number):
