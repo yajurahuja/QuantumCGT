@@ -10,6 +10,4 @@ if __name__ == '__main__':
 	turn = 1
 	a = game(size, winp, turn)
 	a.setup()
-	for i in range(2):
-		a.addplayer()
 	a.play()

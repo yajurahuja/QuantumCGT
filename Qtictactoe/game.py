@@ -1,5 +1,7 @@
-=from player import*
+from player import*
 from QuantumBoard import*
+from gui import *
+import sys
 
 
 
@@ -11,27 +13,44 @@ class game:
 		self.board = None 
 		self.moves = 0	
 		self.players = []
+		self.app = QApplication(sys.argv)
+		self.widgit = None
 
 
 	def setup(self):
 		self.board = Board(self.board_size**2)
 		self.board.init()
+		self.board.current_board = self.board.get_statevector()
+		self.setupGui()
+
+	def setupGui(self):
+		self.widget = QStackedWidget()
+		self.widget.setWindowTitle("Quantum TicTacToe")
+		window = MainWindow(self.widget)
+		self.widget.addWidget(window)
+		self.widget.show()
+		self.app.exec()
 
 
-	def addplayer(self):
-		self.players.append(player(len(self.players) + 1))
+	def addplayers(self):
+		p1, p2 = self.widget.currentWidget().return_data()
+		self.players.append(player(1, p1))
+		self.players.append(player(2, p2))
 
 	def play(self):
+		self.addplayers()
 		for i in range(self.board_size**2):
 			self.move()
 		print("Winner: ", self.get_winner())
 
 	def move(self):
 		self.moves += 1
-		self.players[self.turn - 1].move_9(self.board, self.moves)
+		self.players[self.turn - 1].move(self.board, self.moves, self.board.current_board, self.widget, self.app)
+		#self.players[self.turn - 1].move_9(self.board, self.moves)
 		self.turn = 3 - self.turn
-		print(self.board.get_statevector())
-		print('\n\n\n')
+		self.board.current_board = self.board.get_statevector()
+		#print(self.board.current_board)
+		#print('\n\n\n')
 				
 
 	def get_winner(self):
