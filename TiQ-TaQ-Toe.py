@@ -142,7 +142,7 @@ def reward(board, player_number):
         
     
            
-def play():
+def random_game():
     turn = 1
     board = initial_board()
     p1 = '1'
@@ -169,7 +169,7 @@ def play():
 
 
 
-play()
+random_game()
 
  
   
