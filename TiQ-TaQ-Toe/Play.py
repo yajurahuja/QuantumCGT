@@ -114,6 +114,13 @@ def move(board,player_number):
             unwanted.append(new_board.index(i))
     for ele in sorted(unwanted, reverse = True): 
         del new_board[ele]
+    
+    #Re-normalizing the board
+    a,b = map(list, zip(*new_board))
+    a = np.array(a)
+    a = list(a/np.linalg.norm(a))
+
+    new_board = [list(i) for i in zip(a,b)]
         
     return new_board
 
