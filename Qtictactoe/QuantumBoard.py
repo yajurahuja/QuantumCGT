@@ -11,12 +11,14 @@ class Board():
 		self.circuit = cirq.Circuit()
 		self.simulator = cirq.Simulator()
 		self.move = 0
+		self.current_board = None
 
 	def init(self):
 		OpI = OperatorI(I)
 		for i in range(len(self.qutrits)):
 			self.circuit.append(OpI.on(self.qutrits[i]))
 		self.get_current_state()
+		
 
 	def measure(self):
 		for i in range(len(self.qutrits)):
@@ -60,11 +62,19 @@ class Board():
 		return result.dirac_notation(3)
 
 	def get_boards(self):
-		result = self.get_statevector()
+		result = self.current_board
 		boards = re.split(' \+ | - ', result)
 		for i in range(len(boards)):
 			board = boards[i]
 			boards[i] = board[board.find('|')+1:-1]
+		return boards
+
+	def get_elements(self):
+		result = self.current_board
+		boards = re.split(' \+ | - ', result)
+		for i in range(len(boards)):
+			board = boards[i]
+			
 		return boards
 
 	def create_unitary(self, player, boardlist, indexlist, amplist):

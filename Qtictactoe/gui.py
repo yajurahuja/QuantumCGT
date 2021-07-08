@@ -18,6 +18,23 @@ from PyQt5.QtWidgets import (
 )
 
 
+# class LoadingWindow(QWidget):
+# 	def __init__(self):
+# 		super().__init__()
+# 		self.setWindowTitle("Quantum Tic Tac Toe")
+# 		self.stack = QStackedWidget(self)
+
+# 		for i in range(3):
+# 			dot = '.' * (i + 1)
+# 			layout = QHBoxLayout()
+# 			s = QWidget()
+# 			layout.addWidget(QLabel("Loading" + dot))
+# 			s.setLayout(layout)
+# 			self.stack.addWidget(s)
+# 		a = QVBoxLayout()
+# 		a.addWidget(self.stack)
+# 		self.setLayout(a)
+
 
 class MainWindow(QWidget):
 	def __init__(self, parent):
@@ -25,13 +42,14 @@ class MainWindow(QWidget):
 		self.setWindowTitle("Quantum Tic Tac Toe")
 		self.data = None
 		self.parent = parent
+		self.a = None
 
 		pagelayout = QVBoxLayout()
 
 		heading = QHBoxLayout()
-		lab = QLabel("Quantum Tic Tac Toe\n")
+		lab = QLabel("Quantum Tic Tac Toe")
 		font = lab.font()
-		font.setPointSize(50)
+		font.setPointSize(30)
 		lab.setFont(font)
 		lab.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
 		heading.addWidget(lab)
@@ -71,9 +89,7 @@ class MainWindow(QWidget):
 
 	def return_data(self):
 		return 	self.p1linput.text(), self.p2linput.text()
-
-
-
+		
 			
 
 class TicTacToeWindow(QWidget):
@@ -89,12 +105,14 @@ class TicTacToeWindow(QWidget):
 		self.boardlist = boardlist
 		self.tttlayouts = []
 		self.widgetm = []
+		self.count = 0
+		self.amplist = ['0', '1', '-1', 'i', '-i', '1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2']
 
 
 
 		self.player_info = QHBoxLayout(self)
 		self.BoardPage.addLayout(self.player_info)
-		self.player_info.addWidget(QLabel("Player " + str(player.player_number + 1)))
+		self.player_info.addWidget(QLabel("Player " + str(player.player_number)))
 		self.player_info.addWidget(QLabel(player.player_name))
 		self.player_info.addWidget(QLabel("Turn: " + str(move)))
 
@@ -107,7 +125,12 @@ class TicTacToeWindow(QWidget):
 		self.data.addWidget(self.stack)
 		for i in range(len(boardlist)):
 			self.leftlist.insertItem(i, boardlist[i])
-			self.stackUI(boardlist[i], amplist[i])
+			self.stackUI(boardlist[i], amplist[i], current_board)
+
+		for i in range(len(boardlist)):
+			for j in range(len(self.widgetm[i])):
+				self.connect(i, j)
+
 
 		buttonlayout = QHBoxLayout()
 		button_play = QPushButton('Move')
@@ -118,12 +141,19 @@ class TicTacToeWindow(QWidget):
 
 		self.leftlist.currentRowChanged.connect(self.display)
 
+	def connect(self, i, j):
+		if type(self.widgetm[i][j]) == type(QComboBox()):
+			self.widgetm[i][j].activated.connect(lambda : self.on_choice_change(i, j))
+		
       
-	def stackUI(self, board, amp):
+	def stackUI(self, board, amp, current_state):
 		s = QWidget()
-		amplist = ['0', '1', '-1', 'i', '-i', '1/np.sqrt(2)', '-1/np.sqrt(2)', 'i/np.sqrt(2)', '-i/np.sqrt(2)']
+		
 		vBox = QVBoxLayout(self)
-		amplitude = QLabel(amp)
+		l = current_state.find(amp)
+		amp = current_state[:l] +'<font color = black>'+current_state[l: l + len(amp)] + '</font>' + current_state[l + len(amp): ]
+
+		state = QLabel(amp)
 		Tictactoelayout = QGridLayout()
 		wa = []
 		for i in range(3):
@@ -131,7 +161,7 @@ class TicTacToeWindow(QWidget):
 				index = (i*3) + j
 				if board[index] == '0':
 					ampcb = QComboBox()
-					ampcb.addItems(amplist)
+					ampcb.addItems(self.amplist)
 					Tictactoelayout.addWidget(ampcb, i, j) 
 					wa.append(ampcb)
 				else:
@@ -139,11 +169,60 @@ class TicTacToeWindow(QWidget):
 					Tictactoelayout.addWidget(a, i, j)
 					wa.append(0)
 		self.widgetm.append(wa)
-		vBox.addWidget(amplitude)
+		vBox.addWidget(state)
 		vBox.addLayout(Tictactoelayout)
 		s.setLayout(vBox)
 		self.tttlayouts.append(Tictactoelayout)
 		self.stack.addWidget(s)
+
+	def get_count(self):
+		count = 0
+		for i in range(len(self.widgetm)):
+			for j in range(len(self.widgetm[i])):
+				if self.widgetm[i][j].currentText() != '0':
+					count = count + 1
+		return count
+	def on_choice_change(self, i, j):
+		print(self.widgetm[i][j].currentText(), self.count)
+		self.count = self.get_count()
+		if self.widgetm[i][j].currentText() in ['1', '-1', 'i', '-i']:
+			#self.count = self.count + 1
+			for k in range(len(self.widgetm[i])):
+				if self.widgetm[i][k].currentText() == '0':
+					self.widgetm[i][k].setDisabled(True)
+		elif self.widgetm[i][j].currentText() in ['1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2']:
+			print(self.widgetm[i][j].currentText(), 'F')
+			#self.count = self.count + 1
+			if self.count == 1:
+				for k in range(len(self.widgetm[i])):
+					if k != j:
+						self.widgetm[i][k].clear()
+						self.widgetm[i][k].addItems(['0', '1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2'])
+						self.widgetm[i][k].setEnabled(True)
+			elif self.count == 2:
+				for k in range(len(self.widgetm[i])):
+					if self.widgetm[i][k].currentText() == '0':
+						self.widgetm[i][k].setDisabled(True)
+					if self.widgetm[i][k].currentText() in ['1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2'] and k != j:
+						for a in ['1', '-1', 'i', '-i']:
+							self.widgetm[i][k].removeItem(self.widgetm[i][k].findText(a))
+
+		elif self.widgetm[i][j].currentText() == '0':
+			#self.count = self.count - 1
+			
+			if self.count == 1:
+				for k in range(len(self.widgetm[i])):
+					if self.widgetm[i][k].currentText() not in ['1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2']:
+						self.widgetm[i][k].clear()
+						self.widgetm[i][k].addItems(['0', '1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2'])
+						self.widgetm[i][k].setEnabled(True)
+					else:
+						self.widgetm[i][k].addItems(['1', '-1', 'i', '-i'])
+			elif self.count == 0:
+				for k in range(len(self.widgetm[i])):
+					self.widgetm[i][k].clear()
+					self.widgetm[i][k].addItems(self.amplist)
+					self.widgetm[i][k].setEnabled(True)
 
 	def move(self):
 		print("move")
@@ -165,6 +244,13 @@ class TicTacToeWindow(QWidget):
 
 	def return_data(self):
 		return self.boards, self.boxes, self.amps
+
+class WinnerWindow(QWidget):
+	def __init__():
+		super(WinnerWindow, self).__init__()
+		self.setWindowTitle("Quantum Tic Tac Toe")
+		
+
 
 
 

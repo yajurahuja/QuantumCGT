@@ -1,44 +1,77 @@
+import sys
 import numpy as np
+import pickle
 
-class Qutrit:
-	def __init__(self):
-		self.vec = self.init()
+def getboardstr(board):
+	boardstr = str(board.reshape(len(board) * len(board)))
+	return boardstr
 
-	def init(self):
-		qutrit_array = np.zeros(3, dtype = np.cdouble)
-		qutrit_array[0] = 1
-		return qutrit_array
+def get_winner(board, game_end = True, avail_pos = [1]):
+	collapsed_board = board
+	print(collapsed_board)
+	p1 = 0
+	p2 = 0
+	d1 = []
+	d2 = []
+	#row_column check
+	for i in range(len(collapsed_board)):
+		p1, p2 = get_suite(collapsed_board[i ,:], p1, p2) #row
+		p1, p2 = get_suite(collapsed_board[:,i], p1, p2) #column
+	#diag check
+	p1, p2 = get_suite(collapsed_board.diagonal() ,p1, p2)
+	p1, p2 = get_suite(np.fliplr(collapsed_board).diagonal(), p1, p2)
+	print(p1, p2)
+	if(p1 > p2):
+		return 1
+	elif(p2 > p1):
+		return 2
+	elif len(avail_pos):
+		if game_end == True:
+			return 0
+	else:
+		return None
 
-	def update(self, vector):
-		self.vec = np.array(vector)
 
-	@staticmethod
-	def tensor(qutrit_array):
-		tensor_product = np.array([1.0])
-		for qutrit in qutrit_array:
-			tensor_product = np.kron(tensor_product, qutrit.vec)
-		return tensor_product
+def get_suite(arr, p1, p2):
+	arr = np.array(arr)
+	result = np.all(arr == arr[0])
+	if result:
+		if(arr[0] == 1):
+			p1 += 1
+		elif(arr[0] == 2):
+			p2 += 1
+	return p1, p2
 
-	@staticmethod
-	def apply(gate_array, qutrit_array):
-		if len(gate_array) == len(qutrit_array):
-			return np.dot(Gate.tensor(gate_array), Qutrit.tensor(qutrit_array))
-		else:
-			return None
+def avail_pos(board):
+	positions = []
+	for row in range(len(board)):
+		for col in range(len(board)):
+			if board[row][col] == 0:
+				positions.append((row, col))
+	return positions
 
-class Gate:
-	def __init__(self, gate_matrix):
-		self.mat = np.matrix(gate_matrix)
+#print the board
+def showBoard(board):
+	for i in range(len(board)):
+		print('-------------')
+		out = '| '
+		for j in range(len(board)):
+			if board[i, j] == 1:
+				token = 'x'
+			if board[i, j] == 2:
+				token = 'o'
+			if board[i, j] == 0:
+				token = ' '
+			out += token + ' | '
+		print(out)
+	print('-------------')
 
-	@staticmethod
-	def tensor(gate_array):
-		tensor_product = np.matrix([1.0])
-		for gate in gate_array:
-			tensor_product = np.kron(tensor_product, gate.mat)
-		return tensor_product
 
-class Board:
-	def __init(self, size):
-		self.size = size
-		self.qutrits = Qutrit.tensor([Qutrit() for i in range(size)])
-		
+if __name__ == "__main__":
+	board = np.array([[0, 2, 2],
+				     [1, 1, 0], 
+				     [0, 0, 0]])
+	print(getboardstr(board))
+	print(get_winner(board))
+	print(avail_pos(board))
+	print(showBoard(board))
