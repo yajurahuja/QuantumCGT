@@ -2,6 +2,7 @@ from QuantumBoard import *
 from gui import *
 
 amplitudes = np.array([0, 1, -1 , 1j, -1j, 1/np.sqrt(2), -1/np.sqrt(2), 1j/np.sqrt(2), -1j/np.sqrt(2)], dtype = complex)
+amplitudes = {'0': 0, '1': 1, '-1': -1, 'i': 1j , '-i': -1j , '1/\u221A2': 1/np.sqrt(2), '-1/\u221A2': -1/np.sqrt(2), 'i/\u221A2': 1j/np.sqrt(2), '-i/\u221A2':  -1j/np.sqrt(2)}
 
 
 class player:
@@ -18,8 +19,6 @@ class player:
 		widget.setCurrentIndex(widget.currentIndex() + 1)
 		widget.show()
 		app.exec()
-		a = LoadingWindow()
-		a.show()
 		boards, boxes, amps = widget.currentWidget().return_data()
 		for i in range(len(amps)):
 			amps[i] = amplitudes[amps[i]]

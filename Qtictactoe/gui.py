@@ -18,24 +18,6 @@ from PyQt5.QtWidgets import (
 )
 
 
-# class LoadingWindow(QWidget):
-# 	def __init__(self):
-# 		super().__init__()
-# 		self.setWindowTitle("Quantum Tic Tac Toe")
-# 		self.stack = QStackedWidget(self)
-
-# 		for i in range(3):
-# 			dot = '.' * (i + 1)
-# 			layout = QHBoxLayout()
-# 			s = QWidget()
-# 			layout.addWidget(QLabel("Loading" + dot))
-# 			s.setLayout(layout)
-# 			self.stack.addWidget(s)
-# 		a = QVBoxLayout()
-# 		a.addWidget(self.stack)
-# 		self.setLayout(a)
-
-
 class MainWindow(QWidget):
 	def __init__(self, parent):
 		super().__init__()
@@ -175,54 +157,50 @@ class TicTacToeWindow(QWidget):
 		self.tttlayouts.append(Tictactoelayout)
 		self.stack.addWidget(s)
 
-	def get_count(self):
+	def get_count(self, i):
 		count = 0
-		for i in range(len(self.widgetm)):
-			for j in range(len(self.widgetm[i])):
-				if self.widgetm[i][j].currentText() != '0':
-					count = count + 1
+		for j in range(len(self.widgetm[i])):
+			if type(self.widgetm[i][j]) == type(QComboBox()) and self.widgetm[i][j].currentText() != '0':
+				count = count + 1
 		return count
 	def on_choice_change(self, i, j):
+		self.count = self.get_count(i)
 		print(self.widgetm[i][j].currentText(), self.count)
-		self.count = self.get_count()
-		if self.widgetm[i][j].currentText() in ['1', '-1', 'i', '-i']:
-			#self.count = self.count + 1
+		if type(self.widgetm[i][j]) == type(QComboBox()) and self.widgetm[i][j].currentText() in ['1', '-1', 'i', '-i']: 
 			for k in range(len(self.widgetm[i])):
-				if self.widgetm[i][k].currentText() == '0':
+				if type(self.widgetm[i][k]) == type(QComboBox()) and self.widgetm[i][k].currentText() == '0':
 					self.widgetm[i][k].setDisabled(True)
-		elif self.widgetm[i][j].currentText() in ['1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2']:
+		elif type(self.widgetm[i][j]) == type(QComboBox()) and self.widgetm[i][j].currentText() in ['1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2']:
 			print(self.widgetm[i][j].currentText(), 'F')
-			#self.count = self.count + 1
 			if self.count == 1:
 				for k in range(len(self.widgetm[i])):
-					if k != j:
+					if type(self.widgetm[i][k]) == type(QComboBox()) and k != j:
 						self.widgetm[i][k].clear()
 						self.widgetm[i][k].addItems(['0', '1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2'])
 						self.widgetm[i][k].setEnabled(True)
 			elif self.count == 2:
 				for k in range(len(self.widgetm[i])):
-					if self.widgetm[i][k].currentText() == '0':
+					if type(self.widgetm[i][k]) == type(QComboBox()) and self.widgetm[i][k].currentText() == '0':
 						self.widgetm[i][k].setDisabled(True)
-					if self.widgetm[i][k].currentText() in ['1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2'] and k != j:
+					if type(self.widgetm[i][k]) == type(QComboBox()) and self.widgetm[i][k].currentText() in ['1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2'] and k != j:
 						for a in ['1', '-1', 'i', '-i']:
 							self.widgetm[i][k].removeItem(self.widgetm[i][k].findText(a))
 
-		elif self.widgetm[i][j].currentText() == '0':
-			#self.count = self.count - 1
-			
+		elif type(self.widgetm[i][j]) == type(QComboBox()) and self.widgetm[i][j].currentText() == '0':
 			if self.count == 1:
 				for k in range(len(self.widgetm[i])):
-					if self.widgetm[i][k].currentText() not in ['1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2']:
+					if type(self.widgetm[i][k]) == type(QComboBox()) and self.widgetm[i][k].currentText() not in ['1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2']:
 						self.widgetm[i][k].clear()
 						self.widgetm[i][k].addItems(['0', '1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2'])
 						self.widgetm[i][k].setEnabled(True)
-					else:
+					elif type(self.widgetm[i][k]) == type(QComboBox()):
 						self.widgetm[i][k].addItems(['1', '-1', 'i', '-i'])
 			elif self.count == 0:
 				for k in range(len(self.widgetm[i])):
-					self.widgetm[i][k].clear()
-					self.widgetm[i][k].addItems(self.amplist)
-					self.widgetm[i][k].setEnabled(True)
+					if type(self.widgetm[i][k]) == type(QComboBox()): 
+						self.widgetm[i][k].clear()
+						self.widgetm[i][k].addItems(self.amplist)
+						self.widgetm[i][k].setEnabled(True)
 
 	def move(self):
 		print("move")
@@ -240,7 +218,8 @@ class TicTacToeWindow(QWidget):
 							print(self.widgetm[i][j].currentIndex())
 							self.boards.append(self.boardlist[i])
 							self.boxes.append(j)
-							self.amps.append(self.widgetm[i][j].currentIndex())
+							self.amps.append(self.widgetm[i][j].currentText())
+		print("amps : ", self.amps)
 
 	def return_data(self):
 		return self.boards, self.boxes, self.amps
