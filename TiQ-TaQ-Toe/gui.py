@@ -136,6 +136,8 @@ class TicTacToeWindow(QWidget):
 		#amp = current_state[:l] +'<font color = black>'+current_state[l: l + len(amp)] + '</font>' + current_state[l + len(amp): ]
 		amp = current_state
 		state = QLabel(amp)
+		# state.setFixedWidth(500)
+		# state.setWordWrap(True)
 		Tictactoelayout = QGridLayout()
 		wa = []
 		for i in range(3):
@@ -147,7 +149,11 @@ class TicTacToeWindow(QWidget):
 					Tictactoelayout.addWidget(ampcb, i, j) 
 					wa.append(ampcb)
 				else:
-					a = QLabel(board[index])
+					if board[index] == '1':
+						a = QLabel('<font color = black, size = \'10\'>' + 'X' + '</font>')
+					else:
+						a = QLabel('<font color = black, size = \'10\'>' + 'O' + '</font>')
+					a.setAlignment(Qt.AlignCenter)
 					Tictactoelayout.addWidget(a, i, j)
 					wa.append(0)
 		self.widgetm.append(wa)
@@ -225,9 +231,33 @@ class TicTacToeWindow(QWidget):
 		return self.boards, self.boxes, self.amps
 
 class WinnerWindow(QWidget):
-	def __init__():
+	def __init__(self, player_name, result):
 		super(WinnerWindow, self).__init__()
 		self.setWindowTitle("Quantum Tic Tac Toe")
+
+		pagelayout = QVBoxLayout()
+		Tictactoelayout = QGridLayout()
+		for i in range(3):
+			for j in range(3):
+				index = (i*3) + j
+				if result[index] == '1':
+					a = QLabel('<font color = black size = \'10\'>' + 'X' + '</font>')
+				elif result[index] == '2':
+					a = QLabel('<font color = black size = \'10\'>' + 'O' + '</font>')
+				a.setAlignment(Qt.AlignCenter)
+				Tictactoelayout.addWidget(a, i, j)
+		pagelayout.addLayout(Tictactoelayout)
+		Winnerlayout = QHBoxLayout()
+		a = QLabel('<font color = black size = \'10\'>' + player_name + '</font>')
+		a.setAlignment(Qt.AlignCenter)
+		Winnerlayout.addWidget(a)
+		pagelayout.addLayout(Winnerlayout)
+		self.setLayout(pagelayout)
+
+
+
+
+
 		
 
 

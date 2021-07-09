@@ -315,10 +315,19 @@ def measure(player_names, widget, app):
     
     if state == 1:
         print('The final board is ',result,'\nPlayer 1 wins!!!')
+        widget.addWidget(gui.WinnerWindow('Winner is ' + player_names[0], result))
     elif state == -1:
         print('The final board is ',result,'\nPlayer 2 wins!!!')
+        widget.addWidget(gui.WinnerWindow('Winner is ' + player_names[1], result))
     elif state == 0:
         print('The final board is',result,'\nIt\'s a draw.')
+        widget.addWidget(gui.WinnerWindow("It is a Draw", result))
+
+
+    
+    widget.setCurrentIndex(widget.currentIndex() + 1)
+    widget.show()
+    app.exec()
 
 def setup_GUI():
     widget = QStackedWidget()
