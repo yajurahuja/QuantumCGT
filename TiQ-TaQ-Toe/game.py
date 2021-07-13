@@ -90,7 +90,7 @@ def move_Gui(board, player_number, player_name, turn, current_board, widget, app
         board: nested list (current board position)
                 Eg. [[1/sqrt(2),'121221112'],[1/sqrt(2),'111221212']]
         player_number: char """
-    amplist = [str(i) for i,j in board]
+    amplist = [i for i,j in board]
     boardlist = [j for i,j in board]
     widget.addWidget(gui.TicTacToeWindow(widget, player_number, player_name, turn, boardlist, current_board, amplist))
     widget.setCurrentIndex(widget.currentIndex() + 1)

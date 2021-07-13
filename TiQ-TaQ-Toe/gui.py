@@ -106,8 +106,9 @@ class TicTacToeWindow(QWidget):
 		self.data.addWidget(self.leftlist)
 		self.data.addWidget(self.stack)
 		for i in range(len(boardlist)):
-			self.leftlist.insertItem(i, boardlist[i])
-			self.stackUI(boardlist[i], amplist[i], current_board)
+			self.leftlist.insertItem(i, boardlist[i])          
+			string = '('+str(round(amplist[i].real,2)) + '+' +  str(round(amplist[i].imag,2)) + 'i'+')' + '|'+ boardlist[i] + '>' 
+			self.stackUI(boardlist[i], string, current_board)
 
 		for i in range(len(boardlist)):
 			for j in range(len(self.widgetm[i])):
@@ -128,13 +129,15 @@ class TicTacToeWindow(QWidget):
 			self.widgetm[i][j].activated.connect(lambda : self.on_choice_change(i, j))
 		
       
-	def stackUI(self, board, amp, current_state):
+	def stackUI(self, board, string, current_state):
 		s = QWidget()
 		
 		vBox = QVBoxLayout(self)
-		#l = current_state.find(amp)
-		#amp = current_state[:l] +'<font color = black>'+current_state[l: l + len(amp)] + '</font>' + current_state[l + len(amp): ]
-		amp = current_state
+		print("string", string)
+		l = current_state.find(string)
+		amp = current_state[:l] +'<font color = black>'+current_state[l: l + len(string)] + '</font>' + current_state[l + len(string): ]
+		#amp = current_state
+		print("string", amp)
 		state = QLabel(amp)
 		# state.setFixedWidth(500)
 		# state.setWordWrap(True)
@@ -150,9 +153,9 @@ class TicTacToeWindow(QWidget):
 					wa.append(ampcb)
 				else:
 					if board[index] == '1':
-						a = QLabel('<font color = black, size = \'10\'>' + 'X' + '</font>')
+						a = QLabel('<font color = black size = \'10\'>' + 'X' + '</font>')
 					else:
-						a = QLabel('<font color = black, size = \'10\'>' + 'O' + '</font>')
+						a = QLabel('<font color = black size = \'10\'>' + 'O' + '</font>')
 					a.setAlignment(Qt.AlignCenter)
 					Tictactoelayout.addWidget(a, i, j)
 					wa.append(0)
