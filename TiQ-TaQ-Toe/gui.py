@@ -14,7 +14,8 @@ from PyQt5.QtWidgets import (
     QStackedWidget,
     QListWidget,
     QGridLayout,
-    QComboBox
+    QComboBox,
+    QScrollArea
 )
 
 
@@ -135,10 +136,15 @@ class TicTacToeWindow(QWidget):
 		vBox = QVBoxLayout(self)
 		print("string", string)
 		l = current_state.find(string)
-		amp = current_state[:l] +'<font color = black>'+current_state[l: l + len(string)] + '</font>' + current_state[l + len(string): ]
+		amp = '<font color = black>' + current_state[:l] + '</font>' +current_state[l: l + len(string)] + '<font color = black>'+ current_state[l + len(string): ] + '</font>' 
 		#amp = current_state
 		print("string", amp)
-		state = QLabel(amp)
+		label = QLabel(amp)
+		state =  QScrollArea()
+		state.setWidget(label)
+		state.setFixedSize(300, 50)
+		state.setAlignment(Qt.AlignCenter)
+
 		# state.setFixedWidth(500)
 		# state.setWordWrap(True)
 		Tictactoelayout = QGridLayout()
@@ -256,7 +262,6 @@ class WinnerWindow(QWidget):
 		Winnerlayout.addWidget(a)
 		pagelayout.addLayout(Winnerlayout)
 		self.setLayout(pagelayout)
-
 
 
 
