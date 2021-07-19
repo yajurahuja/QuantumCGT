@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import sparse
+import itertools
 
 
 import random
@@ -14,6 +15,8 @@ from qiskit import BasicAer
 BOARD_ROWS = 3
 BOARD_COLS = 3
 
+ampcombinations = [[1, 0], [1/np.sqrt(2), 1/np.sqrt(2)]]
+
 
 class Game:
 	def init(self, player1, player2):
@@ -22,12 +25,13 @@ class Game:
 		self.gameEnd = False
 		self.turn = 1
 		self.move = 0
+		self.gameboards = [[1,'000000000']]
 
 	def initial_board():
 		"""This is the initial board with amplitude 1 and 0s in all the places"""
 		return [[1,'000000000']]
 
-	def avaialable_positions(self, board, player):
+	def avaialable_positions(self, board):
 		"""Given a board and a players whose turn it is, this method returns a set of 
 		all positions on the board that player can make on the board"""
 		positions = []
@@ -56,6 +60,7 @@ class Game:
 		self.board = None
 		self.gameEnd = False
 		self.turn = 0
+		self.gameboards = self.initial_board()
 
 	def winner(one_board):
 		"""This returns 1 if the the player won this board, -1 is opponent won and 0 if it's a draw"""
@@ -92,11 +97,13 @@ class Game:
 				for board in self.gameboards:
 					positions.append(self.availablePositions(board[1], player))
 				actions, amps = player.chooseAction(positions, self.board, (self.turn))
-				self.move(actions, amps)
+				self.gameboards = self.move(self.gameboards, actions, amps)
 				board_hash = self.getHash()
-				player1.addState(board_hash)
-				if(self.turn == 9)
+				player.addState(board_hash)
+				self.turn = 3 - self.turn
+				if(self.move == 9)
 					self.gameEnd = True
+
 			win = self.winner()
 			self.getReward()
 			self.p1.reset()
@@ -104,11 +111,15 @@ class Game:
 			self.reset()
 			self.turn = 0
 
-	def move(self, actions, amps):
+	def move(self, gameboards, actions, amps):
+	""" Given a the current game state that is the set of gameboards, actions 
+	that is the zeros chosen and the amplituted, this method performs the move on the game state 
+	and returns the new set of gameboards"""
+
 	new_board = []
-	for n in range(len(self.gameboards)):
-		i = self.gameboards[n][0]
-		j = self.gameboards[n][1]
+	for n in range(len(gameboards)):
+		i = gameboards[n][0]
+		j = gameboards[n][1]
         zeros = [k for k in range(len(j)) if j.startswith('0', k)]
         if (len(zeros)>= 2):
             amp, chosen_zeros = amps[n], actions[n]
@@ -165,33 +176,8 @@ class Game:
     return new_board
 
 
-	def getHash(self, gameboard):
-		q0 = np.array([1, 0, 0])
-		q1 = np.array([0, 1, 0])
-		q2 = np.array([0, 0, 1])
-		l = []
-		for i in gameboard:
-			tensor_product = np.array([1])
-			for j in i[1]:
-				if(j == '0'):
-					tensor_product = np.kron(tensor_product, q0)
-				elif(j == '1'):
-					tensor_product = np.kron(tensor_product, q1)
-				elif(j == '2'):
-					tensor_product = np.kron(tensor_product, q2)
-			i1 = list(tensor_product).index(1)
-			i2 = i[0]
-			l.append([i2, i1])
-		statevector = [0] * (3**9)
-		for i,j in l:
-			statevector[j] = i
-		normalised = statevector/np.linalg.norm(statevector)
-
-		hash = str(sparse.csr_matrix(normalised))
-		return hash
-
 class player:
-	def __init__(self, number, cstate_values, exp_rate = 0.3):
+	def __init__(self, number, cstate_values, exp_rate = 0.3, game):
 		self.name = str(number)
 		self.states = []
 		self.lr = 0.2
@@ -199,29 +185,55 @@ class player:
 		self.decay_gamma = 0.9
 		self.classicalstate_values = cstate_values
 		self.state_values = {} # state -> value
+		self.game = game
 
-	def chooseAction(self, positions, current_board, turn):
+	def chooseActionQ(self, positions, turn):
 		fullamps = [1, -1 , 1j, -1j]
 		halfamps = [1/np.sqrt(2), -1/np.sqrt(2), 1j/np.sqrt(2), -1j/np.sqrt(2)]
 		totalamps = [1, -1 , 1j, -1j, 1/np.sqrt(2), -1/np.sqrt(2), 1j/np.sqrt(2), -1j/np.sqrt(2)]
 		if np.random.uniform(0, 1) <= self.exp_rate:
 			idx = [np.random.choice(len(position), size = 2) for position in a]
 			actions = [np.array(positions[i])[idx[i]] for i in range(len(positions))]
-			amps = []
+			max_amps = []
 			for action in actions:
 					amp1 = np.random.choice(totalamps)
 					if amp1 in fullamps:
 						amp2 = 0
 					else:	
 						amp2 = np.random.choice(halfamps)
-					amps.append([amp1, amp2])
+					max_amps.append([amp1, amp2])
 		else: 
+			value
+			actions = []
+			amplist = []
+			for i in range(len(self.gameboards)):
+				a1, a2 = choose2ActionC(self, positions[i], self.gameboards[i][1], self.turn)
+				actions.append([a1, a2])
+			subsets = sub_lists(list(range(len(self.gameboards))))
+			for subset in subsets:
+				amps = []
+				for i in range(len(self.gameboards)):
+					amps.append(ampcombinations[0])
+				for i in subset:
+					amps[i] = ampcombinations[1]
+				amplist.append(amps)
+			max_value = -999
+			max_amps = None
+			for amps in amplist:
+				new_board = move(gameboards, actions, amps)
+				new_boardhash = getHash(new_board)
+				if self.state_values[new_boardhash] is None:
+					value = 0
+				else:
+					value = self.state_values
+				if value >= max_value:
+					max_value = value
+					max_amps = amps
+
+		return actions, max_amps
 
 
-		return actions, amps
-
-
-	def chooseCAction2(self, positions, current_board, turn):
+	def choose2ActionC(self, positions, current_board, turn):
 		max_1 = -999
 		a1 = None
 		max_2 = -999
@@ -246,7 +258,7 @@ class player:
 				a2 = (i,j)
 		return a1, a2 
 
-	def chooseCAction1(self, positions, current_board, turn):
+	def choose1ActionC(self, positions, current_board, turn):
 		max_ = -9999
 		action= None
 		for i,j in positions:
@@ -285,3 +297,40 @@ class player:
 		fr = open(file, 'rb')
 		self.states_value = pickle.load(fr)
 		fr.close()
+
+
+
+
+"""The following below are the utility functions"""
+
+def sub_lists(l):
+    lists = [[]]
+    for i in range(len(l) + 1):
+        for j in range(i):
+            lists.append(l[j: i])
+    return lists
+
+def getHash(gameboards):
+	q0 = np.array([1, 0, 0])
+	q1 = np.array([0, 1, 0])
+	q2 = np.array([0, 0, 1])
+	l = []
+	for i in gameboards:
+		tensor_product = np.array([1])
+		for j in i[1]:
+			if(j == '0'):
+				tensor_product = np.kron(tensor_product, q0)
+			elif(j == '1'):
+				tensor_product = np.kron(tensor_product, q1)
+			elif(j == '2'):
+				tensor_product = np.kron(tensor_product, q2)
+		i1 = list(tensor_product).index(1)
+		i2 = i[0]
+		l.append([i2, i1])
+	statevector = [0] * (3**9)
+	for i,j in l:
+		statevector[j] = i
+	normalised = statevector/np.linalg.norm(statevector)
+
+	hash = str(sparse.csr_matrix(normalised))
+	return hash
