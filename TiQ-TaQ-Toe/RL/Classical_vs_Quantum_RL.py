@@ -24,7 +24,7 @@ class Game:
 		self.p2 = player2
 		self.gameEnd = False
 		self.turn = 1
-		self.move = 0
+		self.moves = 0
 		self.gameboards = [[1,'000000000']]
 
 	def initial_board(self):
@@ -60,10 +60,9 @@ class Game:
 
 	def reset(self):
 		"""Resets all members of the game after each time it has been played"""
-		self.board = None
-		self.board = None
 		self.gameEnd = False
 		self.turn = 0
+		self.moves = 0
 		self.gameboards = self.initial_board()
 
 	def status(self, one_board):
@@ -100,17 +99,18 @@ class Game:
 	def play(self, rounds = 100):
 		""" The user enters the number of rounds and the game is played than many number of times"""
 		for i in range(rounds):
-			if i % 100 == 0:
-				print("Rounds " + str(rounds))
+			print("Rounds " + str(i))
 			while not self.gameEnd:
 				positions = []
-				self.move += 1
-				print("Move: " + str(self.move))
-				if self.move % 2 == 1:
+				self.moves += 1
+				#print("Move: " + str(self.moves))
+				if self.moves % 2 == 1:
 					player = self.p1
 				else:
 					player = self.p2
 
+				#print("gameboards: " + str(len(self.gameboards)))
+				#print(self.gameboards)
 				for board in self.gameboards:
 					positions.append(self.avaialable_positions(board[1]))
 				actions, amps = player.chooseAction(positions, self.gameboards)
@@ -118,15 +118,16 @@ class Game:
 				board_hash = getHash(self.gameboards)
 				player.addState(board_hash)
 				self.turn = 3 - self.turn
-				print('turn ' + str(self.turn))
-				if(self.move == 9):
+				#print('turn ' + str(self.turn))
+				if(self.moves == 9):
 					self.gameEnd = True
-
+			#print("Final Gameboards: " + str(len(self.gameboards)))
+			#print(self.gameboards)
 			self.getReward()
 			self.p1.reset()
 			self.p2.reset()
 			self.reset()
-			self.turn = 0
+
 
 	@staticmethod
 	def move(gameboards, actions, amps, player_number):
@@ -141,13 +142,14 @@ class Game:
 			zeros = [k for k in range(len(j)) if j.startswith('0', k)]
 			if (len(zeros)>= 2):
 				amp = amps[n]
-				print(amp)
-				print(actions[n])
+				#print(amp)
+				#print(actions[n])
 				chosen_zeros = []
 				for action in actions[n]:
 					(a, b) = action
 					chosen_zeros.append(a*3 + b)
-				#print(actions[n], chosen_zeros)
+				#print("data")
+				#print(amp, chosen_zeros)
 				new_amplitudes = [round((element*i).real,2)+round((element*i).imag,2)*1j for element in amp]
 				new_positions = []
 				for index in chosen_zeros:
@@ -225,7 +227,8 @@ class player:
 		#halfamps = [1/np.sqrt(2), -1/np.sqrt(2), 1j/np.sqrt(2), -1j/np.sqrt(2)]
 		#totalamps = []
 		if np.random.uniform(0, 1) <= self.exp_rate:
-			idx = [np.random.choice(len(position), size = 2) for position in positions]
+
+			idx = [np.random.choice(len(position), size = 2, replace = False) if len(position) >= 2 else np.random.choice(len(position), size = 2, replace = True) for position in positions]
 			actions = [np.array(positions[i])[idx[i]] for i in range(len(positions))]
 			max_amps = []
 			for action in actions:
@@ -251,14 +254,16 @@ class player:
 			for amps in amplist:
 				new_board = Game.move(gameboards, actions, amps, self.number)
 				new_boardhash = getHash(new_board)
-				if self.state_values.get(new_boardhash) is None:
+				if self.states_values.get(new_boardhash) is None:
 					value = 0
 				else:
-					value = self.state_values.get(new_boardhash)
+					value = self.states_values.get(new_boardhash)
 				if value >= max_value:
 					max_value = value
 					max_amps = amps
-
+		#print("Q move")
+		#print(len(self.states_values))
+		#print(actions, max_amps)
 		return actions, max_amps
 
 	def chooseActionC(self, positions, gameboards):
@@ -267,7 +272,7 @@ class player:
 
 		if np.random.uniform(0, 1) <= self.exp_rate:
 			for i in range(len(gameboards)):
-				a = np.random.choice(len(positions[i]), size = 2)
+				a = np.random.choice(len(positions[i]), size = 2, replace = False) if len(positions[i]) >= 2 else np.random.choice(len(positions[i]), size = 2, replace = True)
 				b = []
 				for j in a:
 					b.append(positions[i][j])
@@ -279,8 +284,8 @@ class player:
 			for i in range(len(gameboards)):
 				actions.append(self.choose2ActionC(positions[i], gameboards[i][1]))
 				amps.append([1, 0])
-		print("C move")
-		print(actions, amps)
+		#print("C move")
+		#print(actions, amps)
 		return actions, amps
 
 	def choose2ActionC(self, positions, gameboard):
@@ -297,7 +302,7 @@ class player:
 				value = 0
 			else: 
 				value = self.classicalstate_values.get(next_board)
-			print(value)
+			#print(value)
 
 			if value >= max_1:
 				max_2 = max_1
@@ -342,7 +347,7 @@ class player:
 		self.states = []
 
 	def savePolicy(self):
-		fw = open('policy_' + str(self.name), 'wb')
+		fw = open('Qpolicy_' + str(self.number), 'wb')
 		pickle.dump(self.states_values, fw)
 		fw.close()
 
@@ -400,18 +405,20 @@ def getHashC(board):
 				b[i][j] = 1
 			elif board[idx] == '2':
 				b[i][j] = -1 
-	print(b)
+	#print(b)
 	return str(b.reshape(BOARD_ROWS * BOARD_COLS))
 
 
 
 if __name__ == '__main__':
-	Q = player(1, 'c', 0.0)
+	Q = player(1, 'q', 0.3)
 	Q.loadPolicy('policy_p1')
-	C = player(2, 'c', 0.0) 
+	C = player(2, 'c', 0.5) 
 	C.loadPolicy('policy_p2')
 	G = Game(Q, C)
 	Q.setGame(G)
 	C.setGame(G)
-	G.play(1)
+	G.play(1000)
+	print(Q.states_values)
+	Q.savePolicy()
 
