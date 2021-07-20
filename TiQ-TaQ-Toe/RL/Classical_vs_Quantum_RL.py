@@ -8,9 +8,11 @@ from collections import Counter
 import functools
 import operator
 import pickle
+import matplotlib.pyplot as plt
 
 from qiskit import QuantumCircuit, QuantumRegister, execute
 from qiskit import BasicAer
+
 
 BOARD_ROWS = 3
 BOARD_COLS = 3
@@ -47,6 +49,8 @@ class Game:
 		print("rewards -  P1: " + str(sum_p1) +' P2: '+ str(sum_p2))
 		self.p1.feedReward(sum_p1)
 		self.p2.feedReward(sum_p2)
+		self.p1.reward_list.append(sum_p1)
+		self.p2.reward_list.append(sum_p2)
 
 		# if result == 1:
 		# 	self.p1.feedReward(1)
@@ -99,6 +103,7 @@ class Game:
 	def play(self, rounds = 100):
 		""" The user enters the number of rounds and the game is played than many number of times"""
 		for i in range(rounds):
+			print('\n\n\n')
 			print("Rounds " + str(i))
 			while not self.gameEnd:
 				positions = []
@@ -213,6 +218,7 @@ class player:
 		self.states_values = {} # state -> value
 		self.game = None
 		self.type = type_
+		self.reward_list = []
 
 	def chooseAction(self, positions, gameboards):
 		if self.type == 'c':
@@ -261,9 +267,9 @@ class player:
 				if value >= max_value:
 					max_value = value
 					max_amps = amps
-		#print("Q move")
-		#print(len(self.states_values))
-		#print(actions, max_amps)
+		print("Q move")
+		print(len(self.states_values))
+		print(actions, max_amps)
 		return actions, max_amps
 
 	def chooseActionC(self, positions, gameboards):
@@ -284,8 +290,8 @@ class player:
 			for i in range(len(gameboards)):
 				actions.append(self.choose2ActionC(positions[i], gameboards[i][1]))
 				amps.append([1, 0])
-		#print("C move")
-		#print(actions, amps)
+		print("C move")
+		print(actions, amps)
 		return actions, amps
 
 	def choose2ActionC(self, positions, gameboard):
@@ -408,17 +414,26 @@ def getHashC(board):
 	#print(b)
 	return str(b.reshape(BOARD_ROWS * BOARD_COLS))
 
+def plot(p1, p2):
+	plt.plot(p1.reward_list, label = ['p1 '  + p1.type])
+	plt.plot(p2.reward_list, label = ['p2 '  + p2.type])
+	plt.title("Rewards Graph")
+	plt.ylabel('reward')
+	plt.xlabel('iterations')
+	plt.legend()
+	plt.show()
 
 
 if __name__ == '__main__':
 	Q = player(1, 'q', 0.3)
 	Q.loadPolicy('policy_p1')
-	C = player(2, 'c', 0.5) 
+	C = player(2, 'q', 0.3) 
 	C.loadPolicy('policy_p2')
 	G = Game(Q, C)
 	Q.setGame(G)
 	C.setGame(G)
-	G.play(1000)
+	G.play(100)
 	print(Q.states_values)
-	Q.savePolicy()
+	plot(Q, C)
+	#Q.savePolicy()
 
