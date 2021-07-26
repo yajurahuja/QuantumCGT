@@ -48,10 +48,12 @@ class Game:
 		sum_p1, sum_p2 = self.getResult()
 		draw = 100 - sum_p1 - sum_p2
 		print("Probabilites -  P1: " + str(sum_p1) +' P2: '+ str(sum_p2) + ' Draw: ' + str(draw))
-		self.p1.feedReward(sum_p1 + draw)
-		self.p2.feedReward(sum_p2 + 2 * draw)
-		self.p1.reward_list.append(sum_p1 + draw)
-		self.p2.reward_list.append(sum_p2 + 2 * draw)
+		p1 = 2 * sum_p1 - sum_p1 + draw
+		p2 = 2* sum_p2 - sum_p1 + 2 * draw 
+		self.p1.feedReward(p1)
+		self.p2.feedReward(p2)
+		self.p1.reward_list.append(p1)
+		self.p2.reward_list.append(p2)
 
 		# if result == 1:
 		# 	self.p1.feedReward(1)
@@ -169,7 +171,7 @@ class Game:
 				current_board = [[i, new_positions]]
 				new_board.extend(current_board)
 			else:
-				new_board = board 
+				new_board = gameboards 
 		flat = functools.reduce(operator.iconcat, new_board, [])
 		duplicate_items = ([item for item, count in Counter(flat).items() if (count > 1 and type(item)==str)])
 
@@ -268,9 +270,9 @@ class player:
 				if value >= max_value:
 					max_value = value
 					max_amps = amps
-		print("Q move")
-		print(len(self.states_values))
-		print(actions, max_amps)
+		#print("Q move")
+		# print(len(self.states_values))
+		# print(actions, max_amps)
 		return actions, max_amps
 
 	def chooseActionC(self, positions, gameboards):
@@ -291,8 +293,8 @@ class player:
 			for i in range(len(gameboards)):
 				actions.append(self.choose2ActionC(positions[i], gameboards[i][1]))
 				amps.append([1, 0])
-		print("C move")
-		print(actions, amps)
+		# print("C move")
+		# print(actions, amps)
 		return actions, amps
 
 	def choose2ActionC(self, positions, gameboard):
@@ -338,7 +340,7 @@ class player:
 					max_ = value
 					action = (i, j)
 
-		return a1
+		return action
 
 	def addState(self, state):
 		self.states.append(state)
@@ -428,7 +430,7 @@ def plot(p1, p2):
 if __name__ == '__main__':
 	Q = player(1, 'q', 0.3)
 	Q.loadPolicy('policy_p1')
-	C = player(2, 'q', 0.3) 
+	C = player(2, 'c', 0.3) 
 	C.loadPolicy('policy_p2')
 	G = Game(Q, C)
 	Q.setGame(G)

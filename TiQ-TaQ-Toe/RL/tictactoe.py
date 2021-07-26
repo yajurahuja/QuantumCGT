@@ -6,7 +6,7 @@ BOARD_COLS = 3
 
 
 class State:
-    def __init__(self, p1, p2):
+    def __init__(self, p1, p2): #
         self.board = np.zeros((BOARD_ROWS, BOARD_COLS))
         self.p1 = p1
         self.p2 = p2
@@ -16,11 +16,11 @@ class State:
         self.playerSymbol = 1
 
     # get unique hash of current board state
-    def getHash(self):
+    def getHash(self): #towrite
         self.boardHash = str(self.board.reshape(BOARD_COLS * BOARD_ROWS))
         return self.boardHash
 
-    def winner(self):
+    def winner(self): #toedit
         # row
         for i in range(BOARD_ROWS):
             if sum(self.board[i, :]) == 3:
@@ -57,7 +57,7 @@ class State:
         self.isEnd = False
         return None
 
-    def availablePositions(self):
+    def availablePositions(self): #
         positions = []
         for i in range(BOARD_ROWS):
             for j in range(BOARD_COLS):
@@ -65,13 +65,13 @@ class State:
                     positions.append((i, j))  # need to be tuple
         return positions
 
-    def updateState(self, position):
+    def updateState(self, position): #
         self.board[position] = self.playerSymbol
         # switch to another player
         self.playerSymbol = -1 if self.playerSymbol == 1 else 1
 
     # only when game ends
-    def giveReward(self):
+    def giveReward(self): #
         result = self.winner()
         # backpropagate reward
         if result == 1:
@@ -85,7 +85,7 @@ class State:
             self.p2.feedReward(0.5)
 
     # board reset
-    def reset(self):
+    def reset(self): #
         self.board = np.zeros((BOARD_ROWS, BOARD_COLS))
         self.boardHash = None
         self.isEnd = False
@@ -269,18 +269,20 @@ class HumanPlayer:
 
 if __name__ == "__main__":
     # training
-    p1 = Player("p1")
-    p2 = Player("p2")
+    # p1 = Player("p1")
+    # p2 = Player("p2")
 
-    st = State(p1, p2)
-    print("training...")
-    st.play(50000)
-
-    # play with human
+    # st = State(p1, p2)
+    # print("training...")
+    # st.play(50000)
+    # p1.savePolicy()
+    # p2.savePolicy()
+    #play with human
     p1 = Player("computer", exp_rate=0)
     p1.loadPolicy("policy_p1")
+    print(p1.states_value)
 
     p2 = HumanPlayer("human")
 
     st = State(p1, p2)
-    st.play2()
+    #st.play2()
