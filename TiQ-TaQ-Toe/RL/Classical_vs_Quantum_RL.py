@@ -46,11 +46,12 @@ class Game:
 	def getReward(self):
 		"""After a game is finished, this method feeds the appropriate reward to the players"""
 		sum_p1, sum_p2 = self.getResult()
-		print("rewards -  P1: " + str(sum_p1) +' P2: '+ str(sum_p2))
-		self.p1.feedReward(sum_p1)
-		self.p2.feedReward(sum_p2)
-		self.p1.reward_list.append(sum_p1)
-		self.p2.reward_list.append(sum_p2)
+		draw = 100 - sum_p1 - sum_p2
+		print("Probabilites -  P1: " + str(sum_p1) +' P2: '+ str(sum_p2) + ' Draw: ' + str(draw))
+		self.p1.feedReward(sum_p1 + draw)
+		self.p2.feedReward(sum_p2 + 2 * draw)
+		self.p1.reward_list.append(sum_p1 + draw)
+		self.p2.reward_list.append(sum_p2 + 2 * draw)
 
 		# if result == 1:
 		# 	self.p1.feedReward(1)
