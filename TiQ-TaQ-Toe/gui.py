@@ -101,12 +101,15 @@ class TicTacToeWindow(QWidget):
 		self.data.addWidget(self.stack)
 		
 		for i in range(len(boardlist)):
-			self.leftlist.insertItem(i, boardlist[i])          
+			amp = round(amplist[i].real ** 2, 2) + round(amplist[i].imag ** 2, 2)
+			self.leftlist.insertItem(i, '|' + str(boardlist[i]) + '>     Prob: ' + str(amp))          
 			string = '('+str(round(amplist[i].real,2)) + '+' +  str(round(amplist[i].imag,2)) + 'i'+')' + '|'+ boardlist[i] + '>' 
 			self.stackUI(boardlist[i], string, current_board)
 
 		for i in range(self.leftlist.count()):
 			self.leftlist.item(i).setForeground(Qt.white)
+
+		self.leftlist.setFixedSize(180, 200)
 
 		for i in range(len(boardlist)):
 			for j in range(len(self.widgetm[i])):
