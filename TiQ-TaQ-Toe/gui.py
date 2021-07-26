@@ -179,12 +179,18 @@ class TicTacToeWindow(QWidget):
 				count = count + 1
 		return count
 	def on_choice_change(self, i, j):
+		""" This function disables and enables the list elements depending of if the chosen amplitude squares 
+		already add up to 1 or not"""
 		self.count = self.get_count(i)
 		print(self.widgetm[i][j].currentText(), self.count)
+
 		if type(self.widgetm[i][j]) == type(QComboBox()) and self.widgetm[i][j].currentText() in ['1', '-1', 'i', '-i']: 
 			for k in range(len(self.widgetm[i])):
 				if type(self.widgetm[i][k]) == type(QComboBox()) and self.widgetm[i][k].currentText() == '0':
 					self.widgetm[i][k].setDisabled(True)
+			self.leftlist.item(i).setForeground(Qt.green)
+
+
 		elif type(self.widgetm[i][j]) == type(QComboBox()) and self.widgetm[i][j].currentText() in ['1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2']:
 			print(self.widgetm[i][j].currentText(), 'F')
 			if self.count == 1:
@@ -193,6 +199,8 @@ class TicTacToeWindow(QWidget):
 						self.widgetm[i][k].clear()
 						self.widgetm[i][k].addItems(['0', '1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2'])
 						self.widgetm[i][k].setEnabled(True)
+				self.leftlist.item(i).setForeground(Qt.white)
+
 			elif self.count == 2:
 				for k in range(len(self.widgetm[i])):
 					if type(self.widgetm[i][k]) == type(QComboBox()) and self.widgetm[i][k].currentText() == '0':
@@ -200,6 +208,7 @@ class TicTacToeWindow(QWidget):
 					if type(self.widgetm[i][k]) == type(QComboBox()) and self.widgetm[i][k].currentText() in ['1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2'] and k != j:
 						for a in ['1', '-1', 'i', '-i']:
 							self.widgetm[i][k].removeItem(self.widgetm[i][k].findText(a))
+				self.leftlist.item(i).setForeground(Qt.green)
 
 		elif type(self.widgetm[i][j]) == type(QComboBox()) and self.widgetm[i][j].currentText() == '0':
 			if self.count == 1:
@@ -210,12 +219,15 @@ class TicTacToeWindow(QWidget):
 						self.widgetm[i][k].setEnabled(True)
 					elif type(self.widgetm[i][k]) == type(QComboBox()):
 						self.widgetm[i][k].addItems(['1', '-1', 'i', '-i'])
+				self.leftlist.item(i).setForeground(Qt.white)
 			elif self.count == 0:
 				for k in range(len(self.widgetm[i])):
 					if type(self.widgetm[i][k]) == type(QComboBox()): 
 						self.widgetm[i][k].clear()
 						self.widgetm[i][k].addItems(self.amplist)
 						self.widgetm[i][k].setEnabled(True)
+				self.leftlist.item(i).setForeground(Qt.white)
+
 
 	def move(self):
 		print("move")
