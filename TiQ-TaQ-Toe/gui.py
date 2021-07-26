@@ -20,6 +20,7 @@ from PyQt5.QtWidgets import (
 
 
 class MainWindow(QWidget):
+
 	def __init__(self, parent):
 		super().__init__()
 		self.setWindowTitle("Quantum Tic Tac Toe")
@@ -66,15 +67,12 @@ class MainWindow(QWidget):
 
 	def play(self):
 		print('play')
-		self.parent.close()
-
-		
+		self.parent.close()	
 
 	def return_data(self):
 		return 	self.p1linput.text(), self.p2linput.text()
 		
 			
-
 class TicTacToeWindow(QWidget):
 
 	def __init__(self, parent, player_number, player_name, move, boardlist, current_board, amplist):
@@ -90,63 +88,57 @@ class TicTacToeWindow(QWidget):
 		self.widgetm = []
 		self.count = 0
 		self.amplist = ['0', '1', '-1', 'i', '-i', '1/\u221A2', '-1/\u221A2', 'i/\u221A2', '-i/\u221A2']
-
-
-
 		self.player_info = QHBoxLayout(self)
 		self.BoardPage.addLayout(self.player_info)
 		self.player_info.addWidget(QLabel("Player " + str(player_number)))
 		self.player_info.addWidget(QLabel(player_name))
 		self.player_info.addWidget(QLabel("Turn: " + str(move)))
-
 		self.data = QHBoxLayout(self)
 		self.BoardPage.addLayout(self.data)
-
 		self.stack = QStackedWidget(self)
 		self.leftlist = QListWidget()
 		self.data.addWidget(self.leftlist)
 		self.data.addWidget(self.stack)
+		
 		for i in range(len(boardlist)):
 			self.leftlist.insertItem(i, boardlist[i])          
 			string = '('+str(round(amplist[i].real,2)) + '+' +  str(round(amplist[i].imag,2)) + 'i'+')' + '|'+ boardlist[i] + '>' 
 			self.stackUI(boardlist[i], string, current_board)
 
+		for i in range(self.leftlist.count()):
+			self.leftlist.item(i).setForeground(Qt.white)
+
 		for i in range(len(boardlist)):
 			for j in range(len(self.widgetm[i])):
 				self.connect(i, j)
 
-
 		buttonlayout = QHBoxLayout()
-		button_play = QPushButton('Move')
-		button_play.clicked.connect(self.move)
-		buttonlayout.addWidget(button_play)
+		self.button_play = QPushButton('Move')
+		self.button_play.setEnabled(False)
+		self.button_play.clicked.connect(self.move)
+		buttonlayout.addWidget(self.button_play)
+		
 		self.BoardPage.addLayout(buttonlayout)
 		self.setLayout(self.BoardPage)
-
 		self.leftlist.currentRowChanged.connect(self.display)
 
 	def connect(self, i, j):
 		if type(self.widgetm[i][j]) == type(QComboBox()):
 			self.widgetm[i][j].activated.connect(lambda : self.on_choice_change(i, j))
-		
       
 	def stackUI(self, board, string, current_state):
-		s = QWidget()
 		
+		s = QWidget()
 		vBox = QVBoxLayout(self)
 		print("string", string)
 		l = current_state.find(string)
 		amp = '<font color = black>' + current_state[:l] + '</font>' +current_state[l: l + len(string)] + '<font color = black>'+ current_state[l + len(string): ] + '</font>' 
-		#amp = current_state
 		print("string", amp)
 		label = QLabel(amp)
 		state =  QScrollArea()
 		state.setWidget(label)
 		state.setFixedSize(300, 50)
 		state.setAlignment(Qt.AlignCenter)
-
-		# state.setFixedWidth(500)
-		# state.setWordWrap(True)
 		Tictactoelayout = QGridLayout()
 		wa = []
 		for i in range(3):
@@ -178,6 +170,7 @@ class TicTacToeWindow(QWidget):
 			if type(self.widgetm[i][j]) == type(QComboBox()) and self.widgetm[i][j].currentText() != '0':
 				count = count + 1
 		return count
+
 	def on_choice_change(self, i, j):
 		""" This function disables and enables the list elements depending of if the chosen amplitude squares 
 		already add up to 1 or not"""
@@ -227,6 +220,17 @@ class TicTacToeWindow(QWidget):
 						self.widgetm[i][k].addItems(self.amplist)
 						self.widgetm[i][k].setEnabled(True)
 				self.leftlist.item(i).setForeground(Qt.white)
+		flag = True
+		for i in range(self.leftlist.count()):
+			if str(self.leftlist.item(i).foreground().color().rgb()) == '4294967295':
+				flag = False
+		if not flag:
+			self.button_play.setEnabled(False)
+		else:
+			self.button_play.setEnabled(True)
+
+
+
 
 
 	def move(self):
@@ -250,6 +254,8 @@ class TicTacToeWindow(QWidget):
 
 	def return_data(self):
 		return self.boards, self.boxes, self.amps
+
+
 
 class WinnerWindow(QWidget):
 	def __init__(self, player_name, result):
