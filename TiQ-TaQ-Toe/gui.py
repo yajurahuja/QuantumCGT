@@ -18,6 +18,26 @@ from PyQt5.QtWidgets import (
     QScrollArea
 )
 
+def convertboard(board):
+	new_board = ''
+	for i in board:
+		if i == '0':
+			new_board = new_board + ' . '
+		elif i == '1':
+			new_board = new_board + 'X'
+		elif i == '2':
+			new_board = new_board + 'O'
+	return new_board
+
+def current_statestring(boardlist, amplist):
+    string =''
+    for i in range(len(boardlist)):
+        if (i == (len(boardlist)-1)):           
+            string = string + '('+str(round(amplist[i].real,2)) + '+' +  str(round(amplist[i].imag,2)) + 'i'+')' + '|'+ convertboard(boardlist[i]) + '>' 
+        else:
+            string = string + '('+str(round(amplist[i].real,2)) + '+' +  str(round(amplist[i].imag,2)) + 'i'+')' + '|'+ convertboard(boardlist[i]) + '>'+ ' + '
+    return string
+
 
 class MainWindow(QWidget):
 
@@ -102,9 +122,9 @@ class TicTacToeWindow(QWidget):
 		
 		for i in range(len(boardlist)):
 			amp = round(amplist[i].real ** 2, 2) + round(amplist[i].imag ** 2, 2)
-			self.leftlist.insertItem(i, '|' + str(boardlist[i]) + '>     Prob: ' + str(amp))          
-			string = '('+str(round(amplist[i].real,2)) + '+' +  str(round(amplist[i].imag,2)) + 'i'+')' + '|'+ boardlist[i] + '>' 
-			self.stackUI(boardlist[i], string, current_board)
+			self.leftlist.insertItem(i, '|' + str(convertboard(boardlist[i])) + '>     Prob: ' + str(amp))          
+			string = '('+str(round(amplist[i].real,2)) + '+' +  str(round(amplist[i].imag,2)) + 'i'+')' + '|'+ convertboard(boardlist[i]) + '>' 
+			self.stackUI(boardlist[i], string, current_statestring(boardlist, amplist))
 
 		for i in range(self.leftlist.count()):
 			self.leftlist.item(i).setForeground(Qt.white)
@@ -128,7 +148,8 @@ class TicTacToeWindow(QWidget):
 	def connect(self, i, j):
 		if type(self.widgetm[i][j]) == type(QComboBox()):
 			self.widgetm[i][j].activated.connect(lambda : self.on_choice_change(i, j))
-      
+
+
 	def stackUI(self, board, string, current_state):
 		
 		s = QWidget()
@@ -283,7 +304,6 @@ class WinnerWindow(QWidget):
 		Winnerlayout.addWidget(a)
 		pagelayout.addLayout(Winnerlayout)
 		self.setLayout(pagelayout)
-
 
 
 
