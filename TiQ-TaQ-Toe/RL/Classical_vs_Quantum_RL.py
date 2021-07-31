@@ -17,7 +17,7 @@ from qiskit import BasicAer
 BOARD_ROWS = 3
 BOARD_COLS = 3
 
-ampcombinations = [[1, 0], [1/np.sqrt(2), 1/np.sqrt(2)]]
+ampcombinations = [[1, 0], [1/np.sqrt(2), 1/np.sqrt(2)], [1j/np.sqrt(2), -1/np.sqrt(2)]]
 
 
 class Game:
@@ -48,8 +48,8 @@ class Game:
 		sum_p1, sum_p2 = self.getResult()
 		draw = 100 - sum_p1 - sum_p2
 		print("Probabilites -  P1: " + str(sum_p1) +' P2: '+ str(sum_p2) + ' Draw: ' + str(draw))
-		p1 = 2 * sum_p1 - sum_p1 + draw
-		p2 = 2* sum_p2 - sum_p1 + 2 * draw 
+		p1 = 2 * sum_p1 - sum_p1 + (draw/10)
+		p2 = 2* sum_p2 - sum_p1 + (2 * draw/10) 
 		self.p1.feedReward(p1)
 		self.p2.feedReward(p2)
 		self.p1.reward_list.append(p1)
@@ -92,6 +92,7 @@ class Game:
 				return 0	
 
 	def getResult(self):
+		"""returns the exact probability with which player 1 and player 2 can win"""
 		sum_p1 = 0
 		sum_p2 = 0
 		for i, j in self.gameboards:
@@ -106,7 +107,6 @@ class Game:
 	def play(self, rounds = 100):
 		""" The user enters the number of rounds and the game is played than many number of times"""
 		for i in range(rounds):
-			print('\n\n\n')
 			print("Rounds " + str(i))
 			while not self.gameEnd:
 				positions = []
@@ -117,7 +117,8 @@ class Game:
 				else:
 					player = self.p2
 
-				#print("gameboards: " + str(len(self.gameboards)))
+				print(self.moves)
+				print(len(self.gameboards))
 				#print(self.gameboards)
 				for board in self.gameboards:
 					positions.append(self.avaialable_positions(board[1]))
@@ -129,7 +130,7 @@ class Game:
 				#print('turn ' + str(self.turn))
 				if(self.moves == 9):
 					self.gameEnd = True
-			#print("Final Gameboards: " + str(len(self.gameboards)))
+			print("Final Gameboards: " + str(len(self.gameboards)))
 			#print(self.gameboards)
 			self.getReward()
 			self.p1.reset()
@@ -232,16 +233,13 @@ class player:
 
 
 	def chooseActionQ(self, positions, gameboards):
-		#fullamps = [1, -1 , 1j, -1j]
-		#halfamps = [1/np.sqrt(2), -1/np.sqrt(2), 1j/np.sqrt(2), -1j/np.sqrt(2)]
-		#totalamps = []
 		if np.random.uniform(0, 1) <= self.exp_rate:
 
 			idx = [np.random.choice(len(position), size = 2, replace = False) if len(position) >= 2 else np.random.choice(len(position), size = 2, replace = True) for position in positions]
 			actions = [np.array(positions[i])[idx[i]] for i in range(len(positions))]
 			max_amps = []
 			for action in actions:
-					index =  np.random.choice(2)
+					index =  np.random.choice(len(ampcombinations))
 					amp = ampcombinations[index]
 					max_amps.append(amp)
 		else: 
@@ -250,13 +248,12 @@ class player:
 			for i in range(len(gameboards)):
 				a1, a2 = self.choose2ActionC(positions[i], gameboards[i][1])
 				actions.append([a1, a2])
-			subsets = sub_lists(list(range(len(gameboards))))
-			for subset in subsets:
+			 
+			permutations = perms(gameboards, ampcombinations)
+			for p in permutations:
 				amps = []
 				for i in range(len(gameboards)):
-					amps.append(ampcombinations[0])
-				for i in subset:
-					amps[i] = ampcombinations[1]
+					amps.append(ampcombinations[p[i]])
 				amplist.append(amps)
 			max_value = -999
 			max_amps = None
@@ -270,9 +267,10 @@ class player:
 				if value >= max_value:
 					max_value = value
 					max_amps = amps
+		#print(len(gameboards), len(amplist))
 		#print("Q move")
-		# print(len(self.states_values))
-		# print(actions, max_amps)
+		
+		#print(actions, max_amps)
 		return actions, max_amps
 
 	def chooseActionC(self, positions, gameboards):
@@ -373,12 +371,18 @@ class player:
 
 """The following below are the utility functions"""
 
-def sub_lists(l):
+def sub_lists(g):
     lists = [[]]
     for i in range(len(l) + 1):
         for j in range(i):
             lists.append(l[j: i])
     return lists
+
+def perms(gameboards, options):
+	size_g = len(gameboards)
+	size_o = len(options)
+	x = list(range(size_o))
+	return [p for p in itertools.product(x, repeat = size_g)]
 
 def getHash(gameboards):
 	q0 = np.array([1, 0, 0])
@@ -417,9 +421,17 @@ def getHashC(board):
 	#print(b)
 	return str(b.reshape(BOARD_ROWS * BOARD_COLS))
 
+def movingaverage(interval, window_size):
+    window = np.ones(int(window_size))/float(window_size)
+    return np.convolve(interval, window, 'same')
+
 def plot(p1, p2):
+	p1_mavg = movingaverage(p1.reward_list, 10)
+	p2_mavg = movingaverage(p2.reward_list, 10)
 	plt.plot(p1.reward_list, label = ['p1 '  + p1.type])
 	plt.plot(p2.reward_list, label = ['p2 '  + p2.type])
+	plt.plot(p1_mavg, label = ['p1 avg '  + p1.type])
+	plt.plot(p2_mavg, label = ['p2 avg '  + p2.type])
 	plt.title("Rewards Graph")
 	plt.ylabel('reward')
 	plt.xlabel('iterations')
@@ -428,15 +440,15 @@ def plot(p1, p2):
 
 
 if __name__ == '__main__':
-	Q = player(1, 'q', 0.3)
+	Q = player(1, 'c', 1.0)
 	Q.loadPolicy('policy_p1')
-	C = player(2, 'c', 0.3) 
+	C = player(2, 'q', 0.0) 
 	C.loadPolicy('policy_p2')
 	G = Game(Q, C)
 	Q.setGame(G)
 	C.setGame(G)
-	G.play(100)
-	print(Q.states_values)
+	G.play(1)
+	#print(Q.states_values)
 	plot(Q, C)
 	#Q.savePolicy()
 
