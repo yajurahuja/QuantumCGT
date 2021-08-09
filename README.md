@@ -12,7 +12,7 @@ Now, each player can make either a classical move or a quantum move.
  
 <img src="https://github.com/yajurahuja/QuantumCGT/blob/main/Images/Classical%20move.png" alt="alt text" width="500" height="300"> 
     
-    The new game board after this move would be represented as (1+0i)|X........>. 
+  The new game board after this move would be represented as (1+0i)|X........>. 
     
 <img src="https://github.com/yajurahuja/QuantumCGT/blob/main/Images/After%20c-move.png" alt="alt text" width="500" height="300">
     
