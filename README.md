@@ -1,6 +1,6 @@
 # How to Play: TiQ-TaQ-Toe
 
-TiQ-TaQ-Toe is a quantum version of the classical Tic Tac Toe game. As in the classical game, this game is played by two players who take turns marking their moves, with the "X" player moving first. 
+TiQ-TaQ-Toe is a quantum version of the classical Tic Tac Toe game. As in the classical game, this game is played by two players who take turns making their moves, with the "X" player moving first. 
 
 The game starts with a 3x3 grid of empty squares represented as (1 + 0i)|.........> as a quantum state where (1+0i) is the amplitude of the board and the dots represent the empty squares. 
 
