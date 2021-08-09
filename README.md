@@ -4,4 +4,4 @@ TiQ-TaQ-Toe is a quantum version of the classical Tic Tac Toe game. As in the cl
 
 The game starts with a 3x3 grid of empty squares. 
 
-<img src="https://github.com/yajurahuja/QuantumCGT/blob/main/Images/Start.png" alt="alt text" width="500" height="250">
+<img src="https://github.com/yajurahuja/QuantumCGT/blob/main/Images/Start.png" alt="alt text" width="500" height="300">
