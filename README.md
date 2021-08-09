@@ -16,7 +16,7 @@ Now, each player can make either a classical move or a quantum move.
     
 <img src="https://github.com/yajurahuja/QuantumCGT/blob/main/Images/After%20c-move.png" alt="alt text" width="500" height="300">
     
-2. **Quantum Move:** To make a quantum move, the player can select a maximum of two squares to mark by choosing the amplitudes for those squares from the drop down menu. The move should be normalized, i.e. the square of sum of the amplitudes of the squares chosen should be exactly 1. 
+2. **Quantum Move:** To make a quantum move, the player can select a maximum of two squares to mark by choosing the amplitudes for those squares from the corresponding drop down menu. The move should be normalized, i.e. the square of sum of the amplitudes chosen should be exactly 1. 
 
   <img src="https://github.com/yajurahuja/QuantumCGT/blob/main/Images/Quantum%20move.png" alt="alt text" width="500" height="300"> 
 
